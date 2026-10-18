@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Геометрия: Зал</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: a gym app — home with trophy road + ranks, then one training per screen */
+  :root {
+    --bg: #f3f4fa; --card: #ffffff; --fg: #141829; --muted: #6b7190; --line: #dfe2ef;
+    --accent: #ff5a1f; --accent-soft: #ffe7dc; --accent2: #2b55e6; --accent2-soft: #e3e9ff;
+    --ok: #1d8f5f; --ok-soft: #dcf5e9; --bad: #cf3f36; --bad-soft: #fde3e0; --warn: #d9a300; --warn-soft: #fff1c7;
+    --gold: #e0a400; --display: "Unbounded", "Arial Black", sans-serif; --body: "Golos Text", "Segoe UI", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0e1120; --card: #181c30; --fg: #eef0f8; --muted: #9ba3c4; --line: #2a3050;
+    --accent: #ff7a45; --accent-soft: #4a2414; --accent2: #7290ff; --accent2-soft: #21305f;
+    --ok: #4fcf93; --ok-soft: #173d2d; --bad: #ff7a70; --bad-soft: #4a1f1c; --warn: #ffc83d; --warn-soft: #4a3b12; --gold: #ffc83d; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0e1120; --card: #181c30; --fg: #eef0f8; --muted: #9ba3c4; --line: #2a3050;
+    --accent: #ff7a45; --accent-soft: #4a2414; --accent2: #7290ff; --accent2-soft: #21305f;
+    --ok: #4fcf93; --ok-soft: #173d2d; --bad: #ff7a70; --bad-soft: #4a1f1c; --warn: #ffc83d; --warn-soft: #4a3b12; --gold: #ffc83d; color-scheme: dark; }
+  :root[data-skin="mint"] { --accent: #11a683; --accent-soft: #d6f4ea; }
+  :root[data-skin="violet"] { --accent: #7b3fe4; --accent-soft: #ebe0ff; }
+  :root[data-skin="pink"] { --accent: #e5327a; --accent-soft: #ffe0ec; }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.5; padding-inline: 16px; padding-block: 18px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.2; }
+  h1 { font-size: 1.5rem; } h2 { font-size: 1.1rem; } h3 { font-size: .95rem; }
+  p { margin: 0; }
+  .eyebrow { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+  .stack { display: grid; gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .between { justify-content: space-between; }
+  .stat { display: grid; gap: 2px; }
+  .stat .num { font-family: var(--display); font-size: 1.6rem; font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .lbl { font-size: .75rem; color: var(--muted); }
+  .flame { color: var(--accent); }
+  button { font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+  button:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.ghost { background: transparent; }
+  button:disabled { opacity: .45; cursor: default; }
+  input[type=text] { font: inherit; font-size: 1.1rem; padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--fg); width: 190px; max-width: 100%; }
+  input[type=text]:focus { outline: 2px solid var(--accent2); border-color: var(--accent2); }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  .chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700; background: var(--accent2-soft); color: var(--accent2); }
+  .chip.hot { background: var(--accent-soft); color: var(--accent); }
+  .chip.gold { background: var(--warn-soft); color: var(--gold); }
+  /* trophy road */
+  .road { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+  .road::before { content: ""; position: absolute; left: 10%; right: 10%; top: 22px; height: 4px; background: var(--line); border-radius: 2px; }
+  .road .fill { position: absolute; left: 10%; top: 22px; height: 4px; background: var(--accent); border-radius: 2px; transition: width .5s; }
+  .chest { position: relative; display: grid; justify-items: center; gap: 4px; text-align: center; font-size: .72rem; color: var(--muted); }
+  .chest .box { width: 48px; height: 48px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); display: grid; place-items: center; font-family: var(--display); font-size: .7rem; font-weight: 700; }
+  .chest.open .box { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chest.next .box { border-color: var(--accent); color: var(--accent); }
+  /* ranks */
+  .ranks { display: grid; gap: 8px; }
+  .rank { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 10px 14px; border: 1px solid var(--line); border-radius: 14px; }
+  .rank .bar { grid-column: 1 / -1; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .rank .bar > div { height: 100%; background: var(--accent2); transition: width .5s; }
+  .rank .name { font-weight: 600; font-size: .95rem; }
+  .tier { font-weight: 800; font-size: .8rem; letter-spacing: .03em; text-transform: uppercase; }
+  .t0 { color: #a06a3a; } .t1 { color: #8a92ad; } .t2 { color: var(--gold); } .t3 { color: #2bb0d6; } .t4 { color: #c238d8; }
+  /* week */
+  .week { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
+  .day { padding: 12px; border-radius: 14px; border: 1.5px solid var(--line); display: grid; gap: 6px; cursor: pointer; background: var(--card); text-align: left; }
+  .day.done { border-color: var(--ok); background: var(--ok-soft); }
+  .day.cur { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .day.locked { opacity: .5; cursor: default; }
+  .day .n { font-family: var(--display); font-size: .75rem; }
+  .day .t { font-size: .85rem; font-weight: 600; line-height: 1.25; }
+  .day.boss { border-style: dashed; }
+  /* training */
+  .phase { display: flex; gap: 6px; }
+  .phase span { flex: 1; height: 6px; border-radius: 3px; background: var(--line); }
+  .phase span.on { background: var(--accent); } .phase span.done { background: var(--ok); }
+  .task { font-size: 1.1rem; line-height: 1.55; }
+  .choices { display: grid; gap: 8px; } .choices button { text-align: left; }
+  .choices button.picked { border-color: var(--accent2); background: var(--accent2-soft); }
+  .hint { background: var(--warn-soft); border-radius: 12px; padding: 12px 14px; font-size: .95rem; }
+  .verdict { border-radius: 14px; padding: 14px 16px; display: grid; gap: 8px; }
+  .verdict.ok { background: var(--ok-soft); } .verdict.bad { background: var(--bad-soft); }
+  .verdict .title { font-weight: 800; } .verdict.ok .title { color: var(--ok); } .verdict.bad .title { color: var(--bad); }
+  .solution { white-space: pre-line; font-size: .97rem; }
+  .plus { font-family: var(--display); color: var(--accent); font-weight: 700; animation: pop .5s ease-out; display: inline-block; }
+  @keyframes pop { 0% { transform: scale(.4); opacity: 0 } 60% { transform: scale(1.2) } 100% { transform: scale(1); opacity: 1 } }
+  .lesson { display: grid; gap: 14px; }
+  .lesson p { font-size: 1.02rem; }
+  .lesson .key { background: var(--accent2-soft); border-left: 4px solid var(--accent2); padding: 10px 14px; border-radius: 0 12px 12px 0; font-weight: 600; }
+  .fig { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 10px; }
+  .fig svg { width: 100%; height: auto; display: block; touch-action: none; }
+  .vals { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+  .val { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: .9rem; font-variant-numeric: tabular-nums; }
+  .val b { font-family: var(--display); font-size: .95rem; display: block; }
+  .c-opp { color: #e23b3b; } .c-adj { color: #2b6fe6; } .c-hyp { color: #1d9a5f; }
+  .steps { display: grid; gap: 8px; }
+  .step { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); display: grid; gap: 2px; }
+  .step .ex { font-family: var(--display); font-size: 1rem; }
+  .step .why { font-size: .88rem; color: var(--muted); }
+  .step.now { border-color: var(--accent); }
+  .small { font-size: .88rem; color: var(--muted); }
+  .timer { font-family: var(--display); font-variant-numeric: tabular-nums; color: var(--accent); }
+  .big { font-family: var(--display); font-size: 2.4rem; line-height: 1; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); font-size: .85rem; font-weight: 600; }
+  .badge.got { border-color: var(--accent); background: var(--accent-soft); }
+  .skins { display: flex; gap: 8px; }
+  .skin { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; }
+  .skin.on { outline: 2px solid var(--fg); outline-offset: 2px; }
+  .skin:disabled { opacity: .3; cursor: default; }
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 9; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  td, th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: center; font-size: .95rem; }
+  th { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .plus { animation: none } .rank .bar > div, .road .fill { transition: none } }
+  body { margin: 0; }
+  textarea.code { width: 100%; min-height: 90px; font: inherit; font-size: .85rem; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); word-break: break-all; }
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+<div class="wrap stack" id="app"></div>
+
+<script>
+/* ---------- content ---------- */
+const TOPICS = {
+  pyth: "Теорема Пифагора", area: "Площади", rtrig: "Тригонометрия прямоугольного треугольника",
+  sim: "Подобие и окружность", func: "Триг. функции (§1)", sine: "Теорема синусов (§2)", cos: "Теорема косинусов (§3)", alg: "Корни и дроби",
+};
+const TIERS = [["Бронза", 0], ["Серебро", 25], ["Золото", 60], ["Алмаз", 110], ["Мифик", 180]];
+const CHESTS = [
+  { at: 60, title: "Новичок зала", skin: null },
+  { at: 150, title: "Рабочий вес", skin: "mint" },
+  { at: 280, title: "Катет-мастер", skin: "violet" },
+  { at: 430, title: "Гипотенуза", skin: "pink" },
+  { at: 600, title: "PR по тригонометрии", skin: null },
+];
+
+const DAYS = [
+  { n: 1, title: "Три стороны, три имени", topic: "rtrig",
+    warm: [
+      { q: "Катеты <b>3</b> и <b>4</b>. Гипотенуза?", a: 5 },
+      { q: "sin 30° = ? (десятичной дробью)", a: 0.5 },
+      { q: "Сторона треугольника 8, высота к ней 5. Площадь?", a: 20 },
+    ],
+    lesson: { fig: "tri", html: `
+      <p>В прямоугольном треугольнике у каждого острого угла есть три стороны-соседа, и у каждой своё имя относительно <b>этого</b> угла. <span class="c-hyp"><b>Гипотенуза</b></span> — всегда самая длинная, напротив прямого угла. <span class="c-opp"><b>Противолежащий</b></span> катет — тот, что напротив угла. <span class="c-adj"><b>Прилежащий</b></span> — тот, что касается угла.</p>
+      <p class="key">sin = противолежащий / гипотенуза &nbsp;·&nbsp; cos = прилежащий / гипотенуза &nbsp;·&nbsp; tg = противолежащий / прилежащий</p>
+      <p>Запоминалка: <b>с</b>инус <b>с</b>мотрит напротив, <b>к</b>осинус <b>к</b>асается. Потяни точку B вверх-вниз — угол A меняется, и смотри, как меняются синус и косинус. Чем больше угол, тем больше синус и тем меньше косинус. Это не формулы, это картинка.</p>` },
+    set: [
+      { q: "Катеты равны <b>6</b> и <b>8</b>. Найди синус угла, лежащего напротив катета 6.", a: 0.6, h: "Сначала гипотенуза по Пифагору. Потом: напротив / гипотенуза.", s: "Гипотенуза √(36+64) = 10. sin = 6/10 = 0,6." },
+      { q: "Катеты равны <b>5</b> и <b>12</b>. Найди косинус угла, лежащего напротив катета 5. Ответ запиши дробью, например 7/9.", a: 12/13, h: "Косинус — прилежащий к гипотенузе. Прилежащий к этому углу катет — 12.", s: "Гипотенуза 13 (тройка 5-12-13). cos = 12/13." },
+      { q: "Гипотенуза <b>10</b>, катет <b>6</b>. Найди тангенс угла, лежащего напротив катета 6.", a: 0.75, h: "tg = противолежащий / прилежащий. Второй катет найди по Пифагору.", s: "Второй катет √(100−36) = 8. tg = 6/8 = 0,75." },
+      { q: "Катеты равны <b>7</b> и <b>24</b>. Найди косинус угла, лежащего напротив катета 24.", a: 0.28, h: "Прилежащий к этому углу катет — 7. Гипотенуза — тройка 7-24-25.", s: "Гипотенуза 25. cos = 7/25 = 0,28." },
+      { q: "В прямоугольном треугольнике sin A = <b>0,8</b>, гипотенуза равна <b>15</b>. Найди катет, лежащий напротив угла A.", a: 12, h: "sin A = противолежащий / гипотенуза, значит противолежащий = sin A · гипотенуза.", s: "Катет = 0,8 · 15 = 12.\nЭто главный приём: из определения выражаешь ту сторону, которую ищешь." },
+    ],
+    heavy: { q: "В треугольнике ABC угол C прямой, AB = <b>26</b>, cos A = <b>12/13</b>. Найди площадь треугольника.", a: 120, h: "cos A = AC/AB → AC. Потом BC по Пифагору, потом S = ½·AC·BC.", s: "AC = AB · cos A = 26 · 12/13 = 24.\nBC = √(26² − 24²) = √(676 − 576) = √100 = 10.\nS = ½ · 24 · 10 = 120.\nТри шага, каждый на своё правило: определение косинуса, Пифагор, площадь." },
+  },
+  { n: 2, title: "Пифагор и тройки", topic: "pyth",
+    warm: [
+      { q: "Катеты <b>3</b> и <b>4</b>. Синус угла напротив катета 4?", a: 0.8 },
+      { q: "Гипотенуза <b>13</b>, катет <b>12</b>. Второй катет?", a: 5 },
+      { q: "cos 60° = ?", a: 0.5 },
+    ],
+    lesson: { fig: "pyth", html: `
+      <p>Теорема Пифагора — это про площади: квадрат на гипотенузе ровно равен двум квадратам на катетах. Подвигай ползунки и посмотри, как a² + b² всегда даёт c².</p>
+      <p class="key">c² = a² + b² &nbsp;·&nbsp; катет² = гипотенуза² − другой катет²</p>
+      <p>Пифагоровы тройки, которые стоит знать в лицо, чтобы не считать корни: <b>3-4-5</b>, <b>5-12-13</b>, <b>8-15-17</b>, <b>7-24-25</b>. И все их кратные: 6-8-10, 9-12-15, 10-24-26. Если в задаче два числа из тройки, третье можно писать сразу.</p>
+      <p>Когда тройки нет, ответ остаётся с корнем: √2, √3, 2√5. Это нормальный ответ, не надо его бояться и не надо округлять, если не просят.</p>` },
+    set: [
+      { q: "Катеты <b>9</b> и <b>12</b>. Гипотенуза?", a: 15, h: "Это тройка 3-4-5, умноженная на 3.", s: "√(81 + 144) = √225 = 15. Или сразу: 3-4-5 × 3." },
+      { q: "Гипотенуза <b>17</b>, катет <b>8</b>. Второй катет?", a: 15, h: "Катет² = 17² − 8².", s: "√(289 − 64) = √225 = 15. Тройка 8-15-17." },
+      { q: "Катет <b>1</b>, гипотенуза <b>2</b>. Второй катет? Ответ до сотых.", a: 1.73, h: "√(4 − 1) = √3. √3 ≈ 1,732.", s: "√(2² − 1²) = √3 ≈ 1,73.\nЭтот треугольник ты ещё встретишь: это половина равностороннего, его углы 30° и 60°." },
+      { q: "Диагональ квадрата со стороной <b>6</b>. Ответ до сотых.", a: 8.49, h: "Диагональ — гипотенуза с катетами 6 и 6.", s: "√(36 + 36) = √72 = 6√2 ≈ 8,49.\nДиагональ квадрата всегда сторона · √2." },
+      { q: "Равнобедренный треугольник: боковые стороны <b>10</b>, основание <b>12</b>. Найди высоту к основанию.", a: 8, h: "Высота делит основание пополам: получается прямоугольный треугольник с гипотенузой 10 и катетом 6.", s: "Половина основания 6, гипотенуза 10 → высота √(100 − 36) = 8.\nТройка 6-8-10. Равнобедренный треугольник почти всегда решается через высоту к основанию." },
+    ],
+    heavy: { q: "Равнобедренный треугольник с боковой стороной <b>13</b> и основанием <b>10</b>. Найди синус угла при основании. Ответ дробью.", a: 12/13, h: "Проведи высоту к основанию: катет 5, гипотенуза 13. Синус угла при основании — высота / боковая сторона.", s: "Высота √(169 − 25) = 12.\nУгол при основании лежит в прямоугольном треугольнике с гипотенузой 13; напротив него — высота 12.\nsin = 12/13.\nВчерашние определения плюс сегодняшний Пифагор. Так и устроен весь курс: новое всегда стоит на старом." },
+  },
+  { n: 3, title: "Одно тождество на всё", topic: "rtrig",
+    warm: [
+      { q: "Катеты <b>8</b> и <b>15</b>. Гипотенуза?", a: 17 },
+      { q: "tg 45° = ?", a: 1 },
+      { q: "Гипотенуза <b>20</b>, катет напротив угла A равен <b>12</b>. sin A = ?", a: 0.6 },
+    ],
+    lesson: { fig: "circ", html: `
+      <p>Возьми Пифагора a² + b² = c² и подели всё на c². Получится (a/c)² + (b/c)² = 1. А a/c и b/c — это синус и косинус одного и того же угла. Вот и всё тождество, оно просто Пифагор в другой одежде.</p>
+      <p class="key">sin²α + cos²α = 1 &nbsp;·&nbsp; tg α = sin α / cos α</p>
+      <p>На картинке гипотенуза равна 1. Тогда синус — это просто высота точки, а косинус — её сдвиг вправо. Потяни точку по дуге: два квадратика внизу всегда складываются в единицу.</p>
+      <p>Приём для тангенса: если tg = 3/4, нарисуй треугольник с катетами 3 и 4. Гипотенуза 5, и синус с косинусом читаются с картинки. Без единой формулы.</p>` },
+    set: [
+      { q: "Угол острый, sin α = <b>0,6</b>. Найди cos α.", a: 0.8, h: "cos² = 1 − sin².", s: "cos² = 1 − 0,36 = 0,64, cos = 0,8." },
+      { q: "Угол острый, cos α = <b>5/13</b>. Найди sin α. Ответ дробью.", a: 12/13, h: "Или через тождество, или нарисуй треугольник: прилежащий 5, гипотенуза 13.", s: "Треугольник 5-12-13: противолежащий 12. sin = 12/13." },
+      { q: "Угол острый, tg α = <b>4/3</b>. Найди sin α.", a: 0.8, h: "Треугольник с катетами 4 (напротив) и 3 (прилежащий).", s: "Гипотенуза 5. sin = 4/5 = 0,8." },
+      { q: "Угол острый, sin α = <b>√3/2</b>. Найди cos α.", a: 0.5, h: "(√3/2)² = 3/4.", s: "cos² = 1 − 3/4 = 1/4, cos = 1/2 = 0,5.\nЭто угол 60°: sin 60° = √3/2, cos 60° = 1/2." },
+      { q: "Угол острый, cos α = <b>0,28</b>. Найди tg α. Ответ дробью.", a: 24/7, h: "0,28 = 7/25. Треугольник 7-24-25.", s: "cos = 7/25 → прилежащий 7, гипотенуза 25, противолежащий 24.\ntg = 24/7.\nДесятичную дробь часто выгодно превратить в обычную — так видна тройка." },
+    ],
+    heavy: { q: "В прямоугольном треугольнике тангенс одного из острых углов равен <b>0,75</b>, гипотенуза равна <b>40</b>. Найди площадь треугольника.", a: 384, h: "tg = 3/4 → катеты пропорциональны 3 и 4, то есть 3k и 4k. Гипотенуза 5k = 40.", s: "tg = 3/4, значит катеты 3k и 4k, гипотенуза 5k = 40, k = 8.\nКатеты 24 и 32. S = ½ · 24 · 32 = 384.\nПриём «через k» — один из главных в задачах ОГЭ, где дано отношение." },
+  },
+  { n: 4, title: "Корни и дроби без паники", topic: "alg",
+    warm: [
+      { q: "cos α = <b>0,8</b>, угол острый. sin α = ?", a: 0.6 },
+      { q: "Катеты <b>6</b> и <b>8</b>. Гипотенуза?", a: 10 },
+      { q: "sin 45° до сотых = ?", a: 0.71 },
+    ],
+    lesson: { fig: "frac", html: `
+      <p>В геометрии девятого класса каждая вторая задача заканчивается выражением вроде 6 / (√2/2). Геометрия уже решена, осталась арифметика — и именно тут теряются баллы. Три правила закрывают почти всё.</p>
+      <p class="key">1. Делить на дробь = умножить на перевёрнутую.<br>2. Делить дробь на число = число уходит в знаменатель.<br>3. Корень в знаменателе убираем, домножив верх и низ на этот корень.</p>
+      <p>Выбери пример и проходи по шагам. Третий пример — та самая ошибка: 12/√2 делим на 2, и число должно уйти <b>вниз</b>, а не умножить верх.</p>` },
+    set: [
+      { q: "Вычисли 6 / (√2/2). Ответ до сотых.", a: 8.49, h: "6 · 2/√2 = 12/√2 = 6√2.", s: "6 / (√2/2) = 6 · 2/√2 = 12/√2 = 12√2/2 = 6√2 ≈ 8,49." },
+      { q: "Упрости 10/√5. Ответ до сотых.", a: 4.47, h: "Домножь верх и низ на √5.", s: "10/√5 = 10√5/5 = 2√5 ≈ 4,47." },
+      { q: "Вычисли (8/√3) / 2. Ответ до сотых.", a: 2.31, h: "Двойка уходит в знаменатель: 8/(2√3).", s: "(8/√3) / 2 = 8/(2√3) = 4/√3 = 4√3/3 ≈ 2,31." },
+      { q: "Вычисли 5 / (√3/2). Ответ до сотых.", a: 5.77, h: "5 · 2/√3 = 10/√3.", s: "10/√3 = 10√3/3 ≈ 5,77." },
+      { q: "Чему равно (12/√2) / 2?", choices: ["6/√2", "24/√2", "12/√2 − 2"], a: 0, h: "Делим дробь на число — число идёт вниз.", s: "(12/√2) / 2 = 12/(2√2) = 6/√2 = 3√2.\n24/√2 получится, если умножить, а не разделить." },
+    ],
+    heavy: { q: "В треугольнике ABC сторона AC = <b>6</b>, угол B = <b>45°</b>. Найди радиус описанной окружности. Ответ до сотых.", a: 4.24, h: "AC / sin B = 2R. sin 45° = √2/2. Дальше по трём правилам.", s: "2R = 6 / (√2/2) = 12/√2.\nR = 12/(2√2) = 6/√2 = 6√2/2 = 3√2 ≈ 4,24.\nЭто та самая задача из диагностики. Геометрия там была верная, теперь верная и арифметика." },
+  },
+  { n: 5, title: "30, 45, 60 и всё вместе", topic: "rtrig",
+    warm: [
+      { q: "tg α = <b>3/4</b>, угол острый. cos α = ?", a: 0.8 },
+      { q: "(10/√2) / 2 до сотых = ?", a: 3.54 },
+      { q: "Гипотенуза <b>8</b>, угол 30°. Катет напротив него?", a: 4 },
+    ],
+    lesson: { fig: "special", html: `
+      <p>Два треугольника, которые надо знать как таблицу умножения. Половина квадрата: углы 45°, 45°, 90°, стороны 1 : 1 : √2. Половина равностороннего: углы 30°, 60°, 90°, стороны 1 : √3 : 2, где 1 — напротив 30°, √3 — напротив 60°, 2 — гипотенуза.</p>
+      <p class="key">Напротив 30° — половина гипотенузы. Напротив 45° — гипотенуза/√2. Напротив 60° — половина гипотенузы · √3.</p>
+      <p>Переключай угол и тяни гипотенузу. Любая задача с этими углами — это один из двух треугольников, увеличенный в несколько раз.</p>` },
+    set: [
+      { q: "Гипотенуза <b>14</b>, угол <b>30°</b>. Катет напротив него?", a: 7, h: "Половина гипотенузы.", s: "14 · sin 30° = 14 · ½ = 7." },
+      { q: "Гипотенуза <b>10</b>, угол <b>45°</b>. Катет? Ответ до сотых.", a: 7.07, h: "Гипотенуза / √2.", s: "10 / √2 = 10√2/2 = 5√2 ≈ 7,07." },
+      { q: "Катет, лежащий напротив угла <b>60°</b>, равен <b>6√3</b>. Найди гипотенузу.", a: 12, h: "Катет напротив 60° = гипотенуза · √3/2.", s: "Гипотенуза = 6√3 / (√3/2) = 6√3 · 2/√3 = 12.\n√3 сократился. Когда видишь √3 рядом с 60°, он почти всегда сокращается." },
+      { q: "Высота равностороннего треугольника со стороной <b>8</b>. Ответ до сотых.", a: 6.93, h: "Высота — катет напротив 60° в половине треугольника.", s: "h = 8 · √3/2 = 4√3 ≈ 6,93." },
+      { q: "Две стороны треугольника <b>6</b> и <b>8</b>, угол между ними <b>30°</b>. Площадь?", a: 12, h: "S = ½ · a · b · sin угла.", s: "S = ½ · 6 · 8 · ½ = 12." },
+    ],
+    heavy: { q: "В треугольнике ABC угол A = <b>30°</b>, угол B = <b>45°</b>, высота CH = <b>4</b>. Найди AB. Ответ до сотых.", a: 10.93, h: "Высота разбивает треугольник на два прямоугольных. AH через tg 30°, BH через tg 45°. AB = AH + BH.", s: "В треугольнике ACH: tg 30° = CH/AH → AH = 4/tg 30° = 4/(1/√3) = 4√3.\nВ треугольнике BCH: угол 45°, значит BH = CH = 4.\nAB = 4√3 + 4 ≈ 10,93.\nЭто уже задача уровня учебника: два треугольника, два разных угла, корень и дробь. И всё из этой недели." },
+  },
+  { n: 6, boss: true, title: "Босс недели", topic: "rtrig",
+    warm: [],
+    lesson: { fig: null, html: `
+      <p>Одна задача уровня Волчкевича. Решай <b>в тетради</b>: чертёж, обозначения, каждый шаг. Потом сфотографируй страницу и отправь папе — он перешлёт на разбор. Ответ введи здесь.</p>
+      <p class="key">Всё, что нужно, уже в руках: Пифагор, определения синуса и косинуса, корни и дроби.</p>` },
+    set: [],
+    heavy: { q: "В треугольнике ABC стороны AB = <b>13</b>, BC = <b>14</b>, AC = <b>15</b>.<br>1) Найди высоту BH, проведённую к стороне AC.<br>2) Найди sin A.<br>3) Найди радиус описанной окружности (через теорему синусов: BC / sin A = 2R).<br><br>Введи радиус. Ответ до тысячных.", a: 8.125, h: "Обозначь AH = x, тогда HC = 15 − x. Выпиши BH² двумя способами из двух прямоугольных треугольников и приравняй.", s: "1) AH = x, HC = 15 − x. BH² = 13² − x² = 14² − (15 − x)².\n169 − x² = 196 − 225 + 30x − x² → 169 = −29 + 30x → x = 6,6.\nBH = √(169 − 43,56) = √125,44 = 11,2.\n2) sin A = BH/AB = 11,2/13 = 56/65.\n3) 2R = BC / sin A = 14 / (56/65) = 14 · 65/56 = 16,25 → R = 8,125.\nТреугольник 13-14-15 — классика, его знают все репетиторы. Площадь 84, высоты 12, 11,2 и 13,44." },
+  },
+];
+
+/* ---------- state ---------- */
+const KEY = "geo9-gym-v1";
+const seedTopics = { pyth: 50, area: 25, rtrig: 15, sim: 20, func: 25, sine: 50, cos: 35, alg: 10 };
+let S = load() || { trophies: 0, topics: { ...seedTopics }, streak: 0, lastDay: null, freezeWeek: null, days: {}, chests: [], skin: null, cur: null };
+function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+function today() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 864e5); }
+function weekKey() { const d = new Date(); const day = (d.getDay() + 6) % 7; d.setDate(d.getDate() - day); return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(); }
+function applySkin() { if (S.skin) document.documentElement.setAttribute("data-skin", S.skin); else document.documentElement.removeAttribute("data-skin"); }
+function tierOf(v) { let t = 0; TIERS.forEach((x, i) => { if (v >= x[1]) t = i; }); return t; }
+function parseNum(s) { s = String(s).trim().replace(",", ".").replace(/\s+/g, ""); if (!s) return NaN; if (/^-?\d+(\.\d+)?\/\d+(\.\d+)?$/.test(s)) { const [p, q] = s.split("/").map(Number); return p / q; } return Number(s); }
+function addTrophies(n, topic) { S.trophies += n; if (topic) S.topics[topic] = (S.topics[topic] || 0) + n; }
+
+const app = document.getElementById("app");
+applySkin();
+
+/* ---------- home ---------- */
+function home() {
+  S.cur = null; save();
+  const doneCount = Object.values(S.days).filter(d => d.done).length;
+  const nextChest = CHESTS.find(c => !S.chests.includes(c.at));
+  const roadMax = CHESTS[CHESTS.length - 1].at;
+  const fillW = Math.min(80, 80 * S.trophies / roadMax);
+  const road = CHESTS.map(c => `<div class="chest ${S.chests.includes(c.at) ? "open" : (nextChest && nextChest.at === c.at ? "next" : "")}">
+      <div class="box">${S.chests.includes(c.at) ? "✓" : c.at}</div><div>${c.title}</div></div>`).join("");
+  const ranks = Object.keys(TOPICS).map(k => {
+    const v = S.topics[k] || 0, t = tierOf(v), next = TIERS[t + 1];
+    const pct = next ? Math.min(100, 100 * (v - TIERS[t][1]) / (next[1] - TIERS[t][1])) : 100;
+    return `<div class="rank"><div class="name">${TOPICS[k]}</div><div class="tier t${t}">${TIERS[t][0]} · ${v}</div><div class="bar"><div style="width:${pct}%"></div></div></div>`;
+  }).join("");
+  let firstOpen = DAYS.findIndex(d => !(S.days[d.n] && S.days[d.n].done));
+  const week = DAYS.map((d, i) => {
+    const done = S.days[d.n] && S.days[d.n].done, locked = i > firstOpen && firstOpen !== -1;
+    return `<button type="button" class="day ${done ? "done" : ""} ${i === firstOpen ? "cur" : ""} ${locked ? "locked" : ""} ${d.boss ? "boss" : ""}" data-day="${d.n}" ${locked ? "disabled" : ""}>
+      <span class="n">${d.boss ? "БОСС" : "ДЕНЬ " + d.n}</span><span class="t">${d.title}</span>${done ? `<span class="small">+${S.days[d.n].trophies} кубков</span>` : `<span class="small">${d.boss ? "1 задача" : "~20 минут"}</span>`}</button>`;
+  }).join("");
+  const titles = CHESTS.filter(c => S.chests.includes(c.at)).map(c => `<span class="badge got">${c.title}</span>`).join("") || `<span class="small">Пока пусто. Первый сундук на 60 кубках.</span>`;
+  const skinsAvail = CHESTS.filter(c => c.skin && S.chests.includes(c.at)).map(c => c.skin);
+  const skins = [["", "#ff5a1f"], ["mint", "#11a683"], ["violet", "#7b3fe4"], ["pink", "#e5327a"]].map(([k, col]) =>
+    `<button type="button" class="skin ${(S.skin || "") === k ? "on" : ""}" data-skin="${k}" style="background:${col}" ${k && !skinsAvail.includes(k) ? "disabled" : ""} aria-label="тема ${k || 'стандарт'}"></button>`).join("");
+
+  app.innerHTML = `
+    <div class="row between">
+      <div><p class="eyebrow">Геометрия 9 · неделя 1</p><h1>Зал</h1></div>
+      <div class="row">
+        <div class="stat"><div class="num">${S.trophies}</div><div class="lbl">кубков</div></div>
+        <div class="stat"><div class="num flame">${S.streak}🔥</div><div class="lbl">серия дней</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row between"><h2>Дорога трофеев</h2>${nextChest ? `<span class="chip hot">до сундука ${nextChest.at - S.trophies}</span>` : `<span class="chip gold">все сундуки открыты</span>`}</div>
+      <div class="road"><div class="fill" style="width:${fillW}%"></div>${road}</div>
+    </div>
+    <div class="card stack">
+      <div class="row between"><h2>Тренировки</h2><span class="small">${doneCount} из ${DAYS.length}</span></div>
+      <div class="week">${week}</div>
+      <p class="small">Каждая тренировка: разминка на скорость, тема с живым чертёжом, подход из 5 задач и один рабочий вес. Серия держится, если тренироваться каждый день; один пропуск в неделю прощается.</p>
+    </div>
+    <div class="card stack">
+      <h2>Ранги по темам</h2>
+      <div class="ranks">${ranks}</div>
+      <p class="small">Стартовые ранги — из диагностики. Бронза → Серебро → Золото → Алмаз → Мифик.</p>
+    </div>
+    <div class="card stack">
+      <h2>Титулы и темы</h2>
+      <div class="row">${titles}</div>
+      <div class="row between"><span class="small">Цвет приложения (открывается из сундуков)</span><div class="skins">${skins}</div></div>
+    </div>
+    <div class="card stack">
+      <h2>Код прогресса</h2>
+      <p class="small">Страховка от потери серии. Раз в несколько дней нажми «Показать код» и отправь его себе в сообщения. На другом компьютере вставь код в поле и нажми «Загрузить».</p>
+      <div class="row"><button type="button" id="exp">Показать код</button><button type="button" class="ghost" id="imp">Загрузить код</button></div>
+      <textarea class="code" id="codebox" placeholder="Сюда вставить код с другого компьютера"></textarea>
+      <p class="small" id="codemsg"></p>
+    </div>`;
+  app.querySelectorAll(".day:not(.locked)").forEach(b => b.onclick = () => startDay(Number(b.dataset.day)));
+  app.querySelectorAll(".skin").forEach(b => b.onclick = () => { S.skin = b.dataset.skin || null; applySkin(); save(); home(); });
+  const box = app.querySelector("#codebox"), msg = app.querySelector("#codemsg");
+  app.querySelector("#exp").onclick = () => {
+    const code = "GYM1." + btoa(unescape(encodeURIComponent(JSON.stringify({ trophies: S.trophies, topics: S.topics, streak: S.streak, lastDay: S.lastDay, freezeWeek: S.freezeWeek, days: S.days, chests: S.chests, skin: S.skin }))));
+    box.value = code; box.select();
+    const done = () => msg.textContent = "Код скопирован. Отправь его себе в сообщения.";
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(code).then(done).catch(() => msg.textContent = "Код в поле выше — выдели и скопируй."); else msg.textContent = "Код в поле выше — выдели и скопируй.";
+  };
+  app.querySelector("#imp").onclick = () => {
+    const v = box.value.trim();
+    if (!v.startsWith("GYM1.")) { msg.textContent = "Это не похоже на код прогресса."; return; }
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(v.slice(5)))));
+      if (data.trophies < S.trophies) { msg.textContent = "В коде прогресс меньше, чем здесь. Загрузка отменена, чтобы ничего не потерять."; return; }
+      Object.assign(S, data, { cur: null }); save(); applySkin(); home();
+    } catch (e) { msg.textContent = "Код повреждён, проверь, что скопирован целиком."; }
+  };
+}
+
+/* ---------- training ---------- */
+function startDay(n) {
+  const d = DAYS.find(x => x.n === n);
+  S.cur = { day: n, phase: d.warm.length ? "warm" : "lesson", i: 0, ans: {}, hints: {}, earned: 0, warmStart: Date.now(), log: [] };
+  save(); training();
+}
+const PHASES = ["warm", "lesson", "set", "heavy", "done"];
+function training() {
+  const c = S.cur, d = DAYS.find(x => x.n === c.day);
+  const list = c.phase === "warm" ? d.warm : c.phase === "set" ? d.set : c.phase === "heavy" ? [d.heavy] : [];
+  const pi = PHASES.indexOf(c.phase);
+  const bar = PHASES.slice(0, 4).map((p, i) => `<span class="${i < pi ? "done" : i === pi ? "on" : ""}"></span>`).join("");
+  const head = `<div class="row between"><div><p class="eyebrow">${d.boss ? "Босс" : "День " + d.n} · ${d.title}</p><h1>${{ warm: "Разминка", lesson: "Тема", set: "Подход", heavy: d.boss ? "Босс" : "Рабочий вес", done: "Готово" }[c.phase]}</h1></div>
+    <div class="row"><span class="chip">+${c.earned}</span><button type="button" class="ghost" id="home">В зал</button></div></div><div class="phase">${bar}</div>`;
+
+  if (c.phase === "lesson") {
+    app.innerHTML = head + `<div class="card lesson" id="lesson">${d.lesson.html}${d.lesson.fig ? `<div class="fig" id="fig"></div>` : ""}</div>
+      <div class="row"><button type="button" class="primary" id="go">${d.boss ? "К задаче" : "К подходу"}</button></div>`;
+    if (d.lesson.fig) FIG[d.lesson.fig](document.getElementById("fig"));
+    document.getElementById("go").onclick = () => { c.phase = d.set.length ? "set" : "heavy"; c.i = 0; save(); training(); window.scrollTo(0, 0); };
+    document.getElementById("home").onclick = home;
+    return;
+  }
+  if (c.phase === "done") return finish(d);
+
+  const t = list[c.i], key = c.phase + c.i, ans = c.ans[key], answered = ans !== undefined;
+  const warmTimer = c.phase === "warm" ? `<span class="timer" id="tm">0:00</span>` : "";
+  let body, after = "";
+  if (t.choices) {
+    body = `<div class="choices" id="choices">` + t.choices.map((ch, k) => `<button type="button" data-k="${k}" class="${answered && ans.given === k ? "picked" : ""}" ${answered ? "disabled" : ""}>${ch}</button>`).join("") + `</div>`;
+  } else {
+    body = `<div class="row"><input type="text" id="ans" inputmode="decimal" placeholder="Ответ" value="${answered ? ans.text : ""}" ${answered ? "disabled" : ""} autocomplete="off">${answered ? "" : `<button type="button" class="primary" id="check">Проверить</button>`}</div>`;
+  }
+  if (!answered) {
+    after = `<div class="row">${t.h && !c.hints[key] ? `<button type="button" class="ghost" id="hint">Подсказка (−5)</button>` : ""}${c.phase !== "warm" ? `<button type="button" class="ghost" id="skip">Не знаю, покажи решение</button>` : ""}</div>${c.hints[key] ? `<div class="hint">💡 ${t.h}</div>` : ""}`;
+  } else {
+    const last = c.i === list.length - 1;
+    after = `<div class="verdict ${ans.ok ? "ok" : "bad"}"><div class="title">${ans.ok ? "Верно! " : (ans.skipped ? "Разбираем. " : "Не совсем. ")}${ans.gain ? `<span class="plus">+${ans.gain}</span>` : ""}</div>${t.s ? `<div class="solution">${t.s}</div>` : (ans.ok ? "" : `<div class="solution">Правильный ответ: ${fmt(t.a, t)}</div>`)}</div>
+      <div class="row"><button type="button" class="primary" id="next">${last ? "Дальше" : "Следующая"}</button></div>`;
+  }
+  app.innerHTML = head + `<div class="card stack">
+      <div class="row between"><span class="chip ${c.phase === "heavy" ? "hot" : ""}">${c.phase === "warm" ? "на скорость" : c.phase === "heavy" ? (d.boss ? "уровень Волчкевича" : "рабочий вес") : "задача"} · ${c.i + 1} из ${list.length}</span>${warmTimer}</div>
+      <p class="task">${t.q}</p>${body}${after}</div>
+    <p class="small">${c.phase === "warm" ? "Три быстрых вопроса по вчерашнему. Уложишься в полторы минуты — бонус." : c.phase === "heavy" ? "Эту задачу можно решить в тетради и сфотографировать папе — за разбор хода решения идут отдельные кубки." : "Дроби можно писать как 0,6 или 3/5. Подсказка стоит 5 кубков, но лучше взять её, чем угадывать."}</p>`;
+
+  document.getElementById("home").onclick = home;
+  if (c.phase === "warm") { const tm = document.getElementById("tm"); const tick = () => { if (!document.body.contains(tm)) return; const s = Math.floor((Date.now() - c.warmStart) / 1000); tm.textContent = Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); setTimeout(tick, 500); }; tick(); }
+  const inp = document.getElementById("ans"); if (inp && !answered) { inp.focus(); inp.addEventListener("keydown", e => { if (e.key === "Enter") check(); }); }
+  const chk = document.getElementById("check"); if (chk) chk.onclick = check;
+  const hnt = document.getElementById("hint"); if (hnt) hnt.onclick = () => { c.hints[key] = true; save(); training(); };
+  const skp = document.getElementById("skip"); if (skp) skp.onclick = () => { c.ans[key] = { ok: false, skipped: true, text: "", gain: 0 }; save(); training(); };
+  const ch = document.getElementById("choices"); if (ch && !answered) ch.querySelectorAll("button").forEach(b => b.onclick = () => grade(Number(b.dataset.k) === t.a, { given: Number(b.dataset.k), text: t.choices[Number(b.dataset.k)] }));
+  const nxt = document.getElementById("next"); if (nxt) nxt.onclick = () => {
+    if (c.i < list.length - 1) c.i++;
+    else {
+      if (c.phase === "warm") { const sec = (Date.now() - c.warmStart) / 1000; const allOk = d.warm.every((_, k) => c.ans["warm" + k] && c.ans["warm" + k].ok); if (allOk && sec <= 90) { c.earned += 10; addTrophies(10, d.topic); c.log.push("Разминка в темпе: +10"); } c.phase = "lesson"; }
+      else if (c.phase === "set") { c.phase = "heavy"; c.i = 0; }
+      else if (c.phase === "heavy") { c.phase = "done"; }
+    }
+    save(); training(); window.scrollTo(0, 0);
+  };
+  function check() { const v = document.getElementById("ans").value, n = parseNum(v); if (isNaN(n)) { document.getElementById("ans").focus(); return; } grade(Math.abs(n - t.a) < 0.0115, { text: v }); }
+  function grade(ok, extra) {
+    let gain = 0;
+    if (ok) { gain = c.phase === "heavy" ? (d.boss ? 60 : 25) : c.phase === "warm" ? 3 : 8; if (c.hints[key]) gain = Math.max(1, gain - 5); }
+    c.earned += gain; addTrophies(gain, d.topic);
+    c.ans[key] = Object.assign({ ok, gain }, extra); save(); training();
+  }
+}
+function fmt(a, t) { if (t.choices) return t.choices[a]; return Number.isInteger(a) ? a : (Math.abs(a - Math.round(a * 1000) / 1000) < 1e-9 ? String(a).replace(".", ",") : a.toFixed(3).replace(".", ",")); }
+
+function finish(d) {
+  const c = S.cur;
+  const setOk = d.set.filter((_, k) => c.ans["set" + k] && c.ans["set" + k].ok).length;
+  const heavyOk = c.ans["heavy0"] && c.ans["heavy0"].ok;
+  if (!(S.days[d.n] && S.days[d.n].done)) {
+    const bonus = 15; c.earned += bonus; addTrophies(bonus, d.topic);
+    const t = today();
+    if (S.lastDay !== t) {
+      if (!S.lastDay) S.streak = 1;
+      else { const gap = daysBetween(S.lastDay, t); if (gap === 1) S.streak++; else if (gap === 2 && S.freezeWeek !== weekKey()) { S.streak++; S.freezeWeek = weekKey(); c.log.push("Заморозка спасла серию"); } else S.streak = 1; }
+      S.lastDay = t;
+      if (S.streak >= 3) { const sb = Math.min(25, S.streak * 2); c.earned += sb; S.trophies += sb; c.log.push("Серия " + S.streak + " дней: +" + sb); }
+    }
+    S.days[d.n] = { done: true, trophies: c.earned, setOk, heavyOk };
+  }
+  const newChests = CHESTS.filter(ch => S.trophies >= ch.at && !S.chests.includes(ch.at));
+  newChests.forEach(ch => S.chests.push(ch.at));
+  save(); confetti();
+  app.innerHTML = `<div><p class="eyebrow">${d.boss ? "Босс" : "День " + d.n} · ${d.title}</p><h1>Тренировка закрыта</h1></div>
+    <div class="card stack" style="text-align:center">
+      <div class="big">+${c.earned}</div><div class="small">кубков за сегодня · всего ${S.trophies}</div>
+      <div class="row" style="justify-content:center">${d.set.length ? `<span class="badge">подход ${setOk}/${d.set.length}</span>` : ""}<span class="badge ${heavyOk ? "got" : ""}">${d.boss ? "босс" : "рабочий вес"} ${heavyOk ? "взят" : "не взят"}</span><span class="badge">серия ${S.streak}🔥</span></div>
+      ${c.log.length ? `<p class="small">${c.log.join(" · ")}</p>` : ""}
+    </div>
+    ${newChests.length ? `<div class="card stack" style="border-color:var(--accent)"><h2>Сундук открыт</h2>${newChests.map(ch => `<p>Титул <b>«${ch.title}»</b>${ch.skin ? " и новый цвет приложения" : ""}.</p>`).join("")}</div>` : ""}
+    <div class="card stack"><h2>Что отправить папе</h2><p class="small">Нажми кнопку — текст скопируется. Плюс фото решения ${d.boss ? "босса" : "рабочего веса"}, если решала в тетради.</p>
+      <div class="row"><button type="button" class="primary" id="copy">Скопировать отчёт</button><button type="button" id="back">В зал</button></div></div>`;
+  const rep = `${d.boss ? "Босс" : "День " + d.n} · ${d.title}: +${c.earned} кубков (всего ${S.trophies}, серия ${S.streak})\n` + (d.set.length ? `Подход: ${setOk}/${d.set.length}\n` : "") + `${d.boss ? "Босс" : "Рабочий вес"}: ${heavyOk ? "решён" : "не решён"}\n` + d.set.map((t, k) => `  ${k + 1}. ${c.ans["set" + k] ? (c.ans["set" + k].ok ? "верно" : "ошибка: " + (c.ans["set" + k].text || "пропуск")) : "-"}${c.hints["set" + k] ? " (подсказка)" : ""}`).join("\n") + `\nРабочий вес: ${c.ans["heavy0"] ? (c.ans["heavy0"].ok ? "верно" : "ошибка: " + (c.ans["heavy0"].text || "пропуск")) : "-"}`;
+  document.getElementById("copy").onclick = () => { const b = document.getElementById("copy"); const ok = () => b.textContent = "Скопировано"; if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(rep).then(ok).catch(ok); else ok(); };
+  document.getElementById("back").onclick = home;
+}
+
+/* ---------- figures ---------- */
+const FIG = {};
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function drag(svg, onMove) {
+  const pt = e => { const r = svg.getBoundingClientRect(); const vb = svg.viewBox.baseVal; const p = e.touches ? e.touches[0] : e; return { x: (p.clientX - r.left) / r.width * vb.width, y: (p.clientY - r.top) / r.height * vb.height }; };
+  let on = false;
+  svg.addEventListener("pointerdown", e => { on = true; svg.setPointerCapture(e.pointerId); onMove(pt(e)); });
+  svg.addEventListener("pointermove", e => { if (on) onMove(pt(e)); });
+  svg.addEventListener("pointerup", () => on = false); svg.addEventListener("pointercancel", () => on = false);
+}
+const r2 = x => Math.round(x * 100) / 100;
+
+FIG.tri = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 260" id="s"></svg><div class="vals" id="v"></div><p class="small">Тяни точку B. Цвета: <span class="c-opp">противолежащий</span>, <span class="c-adj">прилежащий</span>, <span class="c-hyp">гипотенуза</span> — всё относительно угла A.</p>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v");
+  const A = { x: 40, y: 220 }, C = { x: 320, y: 220 }; let By = 80;
+  const adj = el("line", { x1: A.x, y1: A.y, x2: C.x, y2: C.y, stroke: "#2b6fe6", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const opp = el("line", { x1: C.x, y1: C.y, x2: C.x, y2: By, stroke: "#e23b3b", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const hyp = el("line", { x1: A.x, y1: A.y, x2: C.x, y2: By, stroke: "#1d9a5f", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  el("path", { d: `M${C.x - 16} ${C.y} v-16 h16`, fill: "none", stroke: "currentColor", "stroke-width": 2 }, svg);
+  const arc = el("path", { fill: "none", stroke: "currentColor", "stroke-width": 2 }, svg);
+  const lblA = el("text", { x: A.x - 4, y: A.y + 22, "font-size": 16, "font-weight": 700, fill: "currentColor" }, svg); lblA.textContent = "A";
+  const lblC = el("text", { x: C.x + 8, y: C.y + 22, "font-size": 16, "font-weight": 700, fill: "currentColor" }, svg); lblC.textContent = "C";
+  const lblB = el("text", { x: C.x + 10, y: By, "font-size": 16, "font-weight": 700, fill: "currentColor" }, svg); lblB.textContent = "B";
+  const angT = el("text", { x: A.x + 48, y: A.y - 8, "font-size": 14, fill: "currentColor" }, svg);
+  const B = el("circle", { cx: C.x, cy: By, r: 11, fill: "var(--accent)", stroke: "#fff", "stroke-width": 3, cursor: "ns-resize" }, svg);
+  function upd() {
+    opp.setAttribute("y2", By); hyp.setAttribute("y2", By); B.setAttribute("cy", By); lblB.setAttribute("y", By + 5);
+    const a = (C.x - A.x) / 28, o = (A.y - By) / 28, h = Math.hypot(a, o), ang = Math.atan2(o, a) * 180 / Math.PI;
+    const R = 40; arc.setAttribute("d", `M${A.x + R} ${A.y} A${R} ${R} 0 0 0 ${A.x + R * Math.cos(ang * Math.PI / 180)} ${A.y - R * Math.sin(ang * Math.PI / 180)}`);
+    angT.textContent = Math.round(ang) + "°";
+    v.innerHTML = `<div class="val c-adj">прилежащий<b>${r2(a)}</b></div><div class="val c-opp">противолежащий<b>${r2(o)}</b></div><div class="val c-hyp">гипотенуза<b>${r2(h)}</b></div>
+      <div class="val">sin A = <span class="c-opp">${r2(o)}</span> / <span class="c-hyp">${r2(h)}</span><b>${r2(o / h)}</b></div><div class="val">cos A = <span class="c-adj">${r2(a)}</span> / <span class="c-hyp">${r2(h)}</span><b>${r2(a / h)}</b></div><div class="val">tg A = <span class="c-opp">${r2(o)}</span> / <span class="c-adj">${r2(a)}</span><b>${r2(o / a)}</b></div>`;
+  }
+  drag(svg, p => { By = Math.max(20, Math.min(205, p.y)); upd(); }); upd();
+};
+
+FIG.pyth = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 300" id="s"></svg><div class="row"><label style="flex:1">a = <b id="la"></b><input type="range" id="ra" min="1" max="9" value="3"></label><label style="flex:1">b = <b id="lb"></b><input type="range" id="rb" min="1" max="9" value="4"></label></div><div class="vals" id="v"></div>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v"), ra = box.querySelector("#ra"), rb = box.querySelector("#rb");
+  const g = el("g", {}, svg);
+  function upd() {
+    const a = +ra.value, b = +rb.value, c = Math.hypot(a, b), k = 160 / Math.max(a + c * 0.6, b + c * 0.6, 9); g.innerHTML = "";
+    const ox = 110, oy = 185; // right angle at (ox,oy); a along x, b along y
+    el("rect", { x: ox, y: oy, width: a * k, height: a * k, fill: "#2b6fe6", opacity: .25 }, g);
+    el("rect", { x: ox - b * k, y: oy - b * k, width: b * k, height: b * k, fill: "#e23b3b", opacity: .25 }, g);
+    // square on hypotenuse: from (ox + a k, oy) to (ox, oy - b k), outward direction
+    const p1 = [ox + a * k, oy], p2 = [ox, oy - b * k], dx = p2[0] - p1[0], dy = p2[1] - p1[1];
+    const nx = dy, ny = -dx; // perpendicular, pointing away from the triangle
+    el("polygon", { points: `${p1} ${p2} ${p2[0] + nx},${p2[1] + ny} ${p1[0] + nx},${p1[1] + ny}`, fill: "#1d9a5f", opacity: .25 }, g);
+    el("polygon", { points: `${ox},${oy} ${ox + a * k},${oy} ${ox},${oy - b * k}`, fill: "none", stroke: "currentColor", "stroke-width": 3 }, g);
+    const t = (x, y, s, col) => { const e = el("text", { x, y, "font-size": 15, "font-weight": 700, fill: col, "text-anchor": "middle" }, g); e.textContent = s; };
+    t(ox + a * k / 2, oy + a * k / 2 + 5, "a² = " + a * a, "#2b6fe6"); t(ox - b * k / 2, oy - b * k / 2 + 5, "b² = " + b * b, "#e23b3b");
+    t((p1[0] + p2[0]) / 2 + nx / 2, (p1[1] + p2[1]) / 2 + ny / 2 + 5, "c² = " + r2(a * a + b * b), "#1d9a5f");
+    box.querySelector("#la").textContent = a; box.querySelector("#lb").textContent = b;
+    v.innerHTML = `<div class="val">a² + b²<b>${a * a} + ${b * b} = ${a * a + b * b}</b></div><div class="val c-hyp">c = √${a * a + b * b}<b>${Number.isInteger(c) ? c + " — тройка!" : r2(c)}</b></div>`;
+  }
+  ra.oninput = rb.oninput = upd; upd();
+};
+
+FIG.circ = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 300" id="s"></svg><div class="vals" id="v"></div><p class="small">Тяни точку по дуге. Гипотенуза здесь равна 1, поэтому синус — просто высота, косинус — сдвиг вправо.</p>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v"); const O = { x: 40, y: 230 }, R = 190; let ang = 40;
+  el("path", { d: `M${O.x + R} ${O.y} A${R} ${R} 0 0 0 ${O.x} ${O.y - R}`, fill: "none", stroke: "var(--line)", "stroke-width": 2 }, svg);
+  el("line", { x1: O.x, y1: O.y, x2: O.x + R + 10, y2: O.y, stroke: "currentColor", "stroke-width": 1.5 }, svg);
+  el("line", { x1: O.x, y1: O.y, x2: O.x, y2: O.y - R - 10, stroke: "currentColor", "stroke-width": 1.5 }, svg);
+  const adj = el("line", { stroke: "#2b6fe6", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const opp = el("line", { stroke: "#e23b3b", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const hyp = el("line", { stroke: "#1d9a5f", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const sqC = el("rect", { x: 270, y: 40, height: 16, fill: "#2b6fe6" }, svg), sqS = el("rect", { y: 40, height: 16, fill: "#e23b3b" }, svg);
+  el("rect", { x: 270, y: 40, width: 110, height: 16, fill: "none", stroke: "currentColor" }, svg);
+  const tb = el("text", { x: 270, y: 32, "font-size": 12, fill: "currentColor" }, svg); tb.textContent = "cos² + sin² = 1";
+  const angT = el("text", { x: O.x + 36, y: O.y - 10, "font-size": 14, fill: "currentColor" }, svg);
+  const P = el("circle", { r: 11, fill: "var(--accent)", stroke: "#fff", "stroke-width": 3, cursor: "grab" }, svg);
+  function upd() {
+    const a = ang * Math.PI / 180, x = O.x + R * Math.cos(a), y = O.y - R * Math.sin(a), s = Math.sin(a), c = Math.cos(a);
+    adj.setAttribute("x1", O.x); adj.setAttribute("y1", O.y); adj.setAttribute("x2", x); adj.setAttribute("y2", O.y);
+    opp.setAttribute("x1", x); opp.setAttribute("y1", O.y); opp.setAttribute("x2", x); opp.setAttribute("y2", y);
+    hyp.setAttribute("x1", O.x); hyp.setAttribute("y1", O.y); hyp.setAttribute("x2", x); hyp.setAttribute("y2", y);
+    P.setAttribute("cx", x); P.setAttribute("cy", y); angT.textContent = Math.round(ang) + "°";
+    sqC.setAttribute("width", 110 * c * c); sqS.setAttribute("x", 270 + 110 * c * c); sqS.setAttribute("width", 110 * s * s);
+    v.innerHTML = `<div class="val c-adj">cos<b>${r2(c)}</b></div><div class="val c-opp">sin<b>${r2(s)}</b></div><div class="val">cos² + sin²<b>${r2(c * c)} + ${r2(s * s)} = ${r2(c * c + s * s)}</b></div><div class="val">tg = sin / cos<b>${r2(s / c)}</b></div>`;
+  }
+  drag(svg, p => { ang = Math.max(3, Math.min(87, Math.atan2(O.y - p.y, p.x - O.x) * 180 / Math.PI)); upd(); }); upd();
+};
+
+FIG.frac = box => {
+  const EX = [
+    { name: "6 / (√2/2)", steps: [["6 / (√2/2)", "делим на дробь"], ["6 · 2/√2", "перевернули и умножили"], ["12/√2", "перемножили"], ["12√2 / 2", "домножили верх и низ на √2"], ["6√2", "сократили на 2"]] },
+    { name: "10 / √5", steps: [["10 / √5", "корень в знаменателе — не ответ"], ["10√5 / (√5·√5)", "домножили верх и низ на √5"], ["10√5 / 5", "√5·√5 = 5"], ["2√5", "сократили"]] },
+    { name: "(12/√2) / 2", steps: [["(12/√2) / 2", "дробь делим на число"], ["12 / (2√2)", "число ушло в знаменатель"], ["6 / √2", "сократили 12 и 2"], ["6√2 / 2", "убрали корень снизу"], ["3√2", "сократили на 2"]] },
+  ];
+  let ex = 0, st = 0;
+  function draw() {
+    const e = EX[ex];
+    box.innerHTML = `<div class="row">${EX.map((x, i) => `<button type="button" class="${i === ex ? "primary" : ""}" data-i="${i}">${x.name}</button>`).join("")}</div>
+      <div class="steps">${e.steps.slice(0, st + 1).map((s, i) => `<div class="step ${i === st ? "now" : ""}"><div class="ex">${s[0]}</div><div class="why">${s[1]}</div></div>`).join("")}</div>
+      <div class="row"><button type="button" class="primary" id="nx" ${st >= e.steps.length - 1 ? "disabled" : ""}>${st >= e.steps.length - 1 ? "Готово" : "Следующий шаг"}</button><button type="button" class="ghost" id="rs">Сначала</button></div>
+      <table><tr><th></th><th>30°</th><th>45°</th><th>60°</th></tr><tr><td>sin</td><td>1/2</td><td>√2/2</td><td>√3/2</td></tr><tr><td>cos</td><td>√3/2</td><td>√2/2</td><td>1/2</td></tr><tr><td>tg</td><td>1/√3 = √3/3</td><td>1</td><td>√3</td></tr></table>`;
+    box.querySelectorAll("[data-i]").forEach(b => b.onclick = () => { ex = +b.dataset.i; st = 0; draw(); });
+    box.querySelector("#nx").onclick = () => { st++; draw(); }; box.querySelector("#rs").onclick = () => { st = 0; draw(); };
+  }
+  draw();
+};
+
+FIG.special = box => {
+  box.innerHTML = `<div class="row" id="angs"><button type="button" data-a="30" class="primary">30°</button><button type="button" data-a="45">45°</button><button type="button" data-a="60">60°</button></div>
+    <svg viewBox="0 0 400 240" id="s"></svg><label>гипотенуза = <b id="lh"></b><input type="range" id="rh" min="2" max="20" value="10"></label><div class="vals" id="v"></div>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v"), rh = box.querySelector("#rh"); let A = 30;
+  const g = el("g", {}, svg);
+  function upd() {
+    const H = +rh.value, a = A * Math.PI / 180, opp = H * Math.sin(a), adj = H * Math.cos(a), k = 260 / 20 * 1.3; g.innerHTML = "";
+    const ox = 60, oy = 200, w = adj * k, h = opp * k;
+    el("polygon", { points: `${ox},${oy} ${ox + w},${oy} ${ox + w},${oy - h}`, fill: "var(--accent-soft)", stroke: "currentColor", "stroke-width": 3 }, g);
+    el("line", { x1: ox, y1: oy, x2: ox + w, y2: oy, stroke: "#2b6fe6", "stroke-width": 5 }, g);
+    el("line", { x1: ox + w, y1: oy, x2: ox + w, y2: oy - h, stroke: "#e23b3b", "stroke-width": 5 }, g);
+    el("line", { x1: ox, y1: oy, x2: ox + w, y2: oy - h, stroke: "#1d9a5f", "stroke-width": 5 }, g);
+    const t = (x, y, s, col, anchor) => { const e = el("text", { x, y, "font-size": 14, "font-weight": 700, fill: col, "text-anchor": anchor || "middle" }, g); e.textContent = s; };
+    t(ox + 42, oy - 8, A + "°", "currentColor"); t(ox + w - 10, oy - h + 24, (90 - A) + "°", "currentColor", "end");
+    const ex = { 30: ["H/2", "H·√3/2"], 45: ["H/√2", "H/√2"], 60: ["H·√3/2", "H/2"] }[A];
+    t(ox + w / 2, oy + 20, "прилежащий = " + ex[1].replace("H", H) + " = " + r2(adj), "#2b6fe6");
+    t(ox + w + 8, oy - h / 2, ex[0].replace("H", H) + " = " + r2(opp), "#e23b3b", "start");
+    box.querySelector("#lh").textContent = H;
+    v.innerHTML = `<div class="val c-hyp">гипотенуза<b>${H}</b></div><div class="val c-opp">напротив ${A}°<b>${ex[0].replace("H", H)} ≈ ${r2(opp)}</b></div><div class="val c-adj">напротив ${90 - A}°<b>${ex[1].replace("H", H)} ≈ ${r2(adj)}</b></div>`;
+  }
+  box.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { A = +b.dataset.a; box.querySelectorAll("[data-a]").forEach(x => x.classList.toggle("primary", x === b)); upd(); });
+  rh.oninput = upd; upd();
+};
+
+/* ---------- confetti ---------- */
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = document.getElementById("confetti"), ctx = cv.getContext("2d"); cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ["#ff5a1f", "#2b55e6", "#1d8f5f", "#e0a400", "#e5327a"];
+  const ps = Array.from({ length: 120 }, () => ({ x: Math.random() * cv.width, y: -20 - Math.random() * 200, vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4, s: 6 + Math.random() * 6, c: cols[Math.floor(Math.random() * cols.length)], r: Math.random() * 6.28 }));
+  let t = 0; (function f() { ctx.clearRect(0, 0, cv.width, cv.height); ps.forEach(p => { p.x += p.vx; p.y += p.vy; p.r += .1; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * .6); ctx.restore(); }); if (++t < 150) requestAnimationFrame(f); else ctx.clearRect(0, 0, cv.width, cv.height); })();
+}
+
+/* ---------- boot ---------- */
+if (S.cur) training(); else home();
+</script>
+
+</body>
+</html>
