@@ -24,6 +24,8 @@
   :root[data-skin="mint"] { --accent: #11a683; --accent-soft: #d6f4ea; }
   :root[data-skin="violet"] { --accent: #7b3fe4; --accent-soft: #ebe0ff; }
   :root[data-skin="pink"] { --accent: #e5327a; --accent-soft: #ffe0ec; }
+  :root[data-skin="sky"] { --accent: #0f8fd6; --accent-soft: #d9eefc; }
+  :root[data-skin="gold"] { --accent: #c98a00; --accent-soft: #fff0c2; }
   * { box-sizing: border-box; }
   body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 17px; line-height: 1.5; padding-inline: 16px; padding-block: 18px; }
   .wrap { max-width: 700px; margin: 0 auto; }
@@ -138,7 +140,11 @@ const CHESTS = [
   { at: 280, title: "Катет-мастер", skin: "violet" },
   { at: 430, title: "Гипотенуза", skin: "pink" },
   { at: 600, title: "PR по тригонометрии", skin: null },
+  { at: 800, title: "Тупой угол не страшен", skin: "sky" },
+  { at: 1050, title: "Две теоремы", skin: null },
+  { at: 1300, title: "Мифик зала", skin: "gold" },
 ];
+const WEEKS = { 1: "Неделя 1 · фундамент", 2: "Неделя 2 · тупые углы и две теоремы" };
 
 const DAYS = [
   { n: 1, title: "Три стороны, три имени", topic: "rtrig",
@@ -246,7 +252,116 @@ const DAYS = [
     set: [],
     heavy: { q: "В треугольнике ABC стороны AB = <b>13</b>, BC = <b>14</b>, AC = <b>15</b>.<br>1) Найди высоту BH, проведённую к стороне AC.<br>2) Найди sin A.<br>3) Найди радиус описанной окружности (через теорему синусов: BC / sin A = 2R).<br><br>Введи радиус. Ответ до тысячных.", a: 8.125, h: "Обозначь AH = x, тогда HC = 15 − x. Выпиши BH² двумя способами из двух прямоугольных треугольников и приравняй.", s: "1) AH = x, HC = 15 − x. BH² = 13² − x² = 14² − (15 − x)².\n169 − x² = 196 − 225 + 30x − x² → 169 = −29 + 30x → x = 6,6.\nBH = √(169 − 43,56) = √125,44 = 11,2.\n2) sin A = BH/AB = 11,2/13 = 56/65.\n3) 2R = BC / sin A = 14 / (56/65) = 14 · 65/56 = 16,25 → R = 8,125.\nТреугольник 13-14-15 — классика, его знают все репетиторы. Площадь 84, высоты 12, 11,2 и 13,44." },
   },
+
+  /* ---------- week 2 ---------- */
+  { n: 7, week: 2, title: "Углы больше 90°", topic: "func",
+    warm: [
+      { q: "sin 60° до сотых = ?", a: 0.87 },
+      { q: "Угол острый, cos α = <b>0,6</b>. sin α = ?", a: 0.8 },
+      { q: "Две стороны <b>4</b> и <b>9</b>, угол между ними <b>30°</b>. Площадь?", a: 9 },
+    ],
+    lesson: { fig: "semi", html: `
+      <p>В восьмом классе синус и косинус жили только в прямоугольном треугольнике, то есть для углов до 90°. В девятом угол может быть любым от 0° до 180°, и определение меняется: берём полуокружность радиуса 1, точку на ней под углом α — её <span class="c-opp"><b>высота</b></span> это синус, её <span class="c-adj"><b>сдвиг по горизонтали</b></span> это косинус.</p>
+      <p class="key">sin(180° − α) = sin α &nbsp;·&nbsp; cos(180° − α) = −cos α &nbsp;·&nbsp; у тупого угла синус положительный, косинус отрицательный</p>
+      <p>Потяни точку за 90°: высота остаётся такой же, как у «зеркального» острого угла, а сдвиг уходит влево от нуля и становится отрицательным. Поэтому sin 150° = sin 30° = 1/2, а cos 150° = −cos 30° = −√3/2. Тождество sin² + cos² = 1 работает для любых углов: минус в квадрате исчезает.</p>` },
+    set: [
+      { q: "Найди <b>sin 150°</b>. Ответ десятичной дробью.", a: 0.5, h: "sin(180° − 30°) = sin 30°.", s: "sin 150° = sin 30° = 0,5." },
+      { q: "Найди <b>cos 135°</b>. Ответ до сотых, с минусом, если нужно.", a: -0.71, h: "cos(180° − 45°) = −cos 45°.", s: "cos 135° = −cos 45° = −√2/2 ≈ −0,71." },
+      { q: "Найди <b>sin 120°</b>. Ответ до сотых.", a: 0.87, h: "Зеркальный острый угол — 60°.", s: "sin 120° = sin 60° = √3/2 ≈ 0,87.\nСинус у тупого угла такой же, как у смежного острого." },
+      { q: "Угол α тупой, cos α = <b>−0,8</b>. Найди sin α.", a: 0.6, h: "sin² = 1 − cos². (−0,8)² = 0,64.", s: "sin² = 1 − 0,64 = 0,36, sin = 0,6 (у тупого угла синус положительный)." },
+      { q: "Угол α тупой, sin α = <b>0,6</b>. Найди cos α.", a: -0.8, h: "Через тождество получишь ±0,8. Знак выбирай по тому, что угол тупой.", s: "cos² = 1 − 0,36 = 0,64, cos = ±0,8. Угол тупой → cos = −0,8.\nСамая частая ошибка здесь — забыть минус." },
+    ],
+    heavy: { q: "Угол α тупой, sin α = <b>5/13</b>. Найди tg α. Ответ дробью, с минусом, если нужно.", a: -5/12, h: "Нарисуй треугольник 5-12-13 для острого «зеркального» угла, потом поставь знаки для тупого.", s: "Для зеркального острого угла: sin = 5/13, cos = 12/13, треугольник 5-12-13.\nУ тупого угла cos α = −12/13.\ntg α = sin/cos = (5/13) / (−12/13) = −5/12.\nТангенс тупого угла всегда отрицательный." },
+  },
+  { n: 8, week: 2, title: "Теорема синусов", topic: "sine",
+    warm: [
+      { q: "cos 120° = ?", a: -0.5 },
+      { q: "sin 135° до сотых = ?", a: 0.71 },
+      { q: "Угол тупой, cos α = <b>−0,28</b>. sin α = ?", a: 0.96 },
+    ],
+    lesson: { fig: "sinlaw", html: `
+      <p>В любом треугольнике сторона и синус противолежащего угла связаны одной и той же пропорцией. Это и есть теорема синусов, а константа этой пропорции — диаметр описанной окружности.</p>
+      <p class="key">a / sin A = b / sin B = c / sin C = 2R</p>
+      <p>Потяни вершину C: треугольник меняется, стороны и углы меняются, а три отношения внизу остаются равными друг другу и равными 2R. Главный навык — правильно спарить сторону с углом <b>напротив</b>: сторона BC лежит напротив угла A, AC — напротив B, AB — напротив C.</p>
+      <p>Когда применять: даны два угла и сторона, или сторона с углом напротив и ещё что-то одно. Или в задаче есть описанная окружность.</p>` },
+    set: [
+      { q: "В треугольнике ABC сторона AB = <b>10</b>, угол C = <b>30°</b>. Найди радиус описанной окружности.", a: 10, h: "AB / sin C = 2R.", s: "2R = 10 / 0,5 = 20 → R = 10." },
+      { q: "Угол A = <b>45°</b>, угол B = <b>60°</b>, сторона BC = <b>4√2</b>. Найди AC. Ответ до сотых.", a: 6.93, h: "BC напротив A, AC напротив B.", s: "4√2 / (√2/2) = AC / (√3/2). Слева: 4√2 · 2/√2 = 8. AC = 8 · √3/2 = 4√3 ≈ 6,93." },
+      { q: "Радиус описанной окружности R = <b>5</b>, угол A = <b>30°</b>. Найди сторону BC.", a: 5, h: "BC = 2R · sin A.", s: "BC = 2 · 5 · 0,5 = 5." },
+      { q: "Сторона a = <b>6</b>, sin A = <b>0,6</b>, sin B = <b>0,8</b>. Найди сторону b.", a: 8, h: "a / sin A = b / sin B.", s: "6 / 0,6 = 10 = b / 0,8 → b = 8." },
+      { q: "Угол A = <b>120°</b>, сторона BC = <b>7√3</b>. Найди радиус описанной окружности.", a: 7, h: "sin 120° = sin 60° = √3/2.", s: "2R = 7√3 / (√3/2) = 7√3 · 2/√3 = 14 → R = 7.\nТупой угол здесь ничего не меняет: синус у него такой же, как у 60°." },
+    ],
+    heavy: { q: "В треугольнике ABC угол A = <b>30°</b>, угол B = <b>105°</b>, сторона AB = <b>4√2</b>. Найди BC.", a: 4, h: "Сначала угол C. AB лежит напротив C, BC — напротив A.", s: "C = 180° − 30° − 105° = 45°.\nBC / sin A = AB / sin C → BC = 4√2 · sin 30° / sin 45° = 4√2 · (1/2) / (√2/2) = 4√2 · (1/2) · (2/√2) = 4.\nУгол 105° ни в какой формуле не нужен — он нужен только чтобы найти 45°." },
+  },
+  { n: 9, week: 2, title: "Теорема косинусов", topic: "cos",
+    warm: [
+      { q: "AB = <b>8</b>, угол C = <b>30°</b>. Радиус описанной окружности?", a: 8 },
+      { q: "cos 150° до сотых = ?", a: -0.87 },
+      { q: "Катеты <b>5</b> и <b>12</b>. Гипотенуза?", a: 13 },
+    ],
+    lesson: { fig: "coslaw", html: `
+      <p>Теорема косинусов — это Пифагор с поправкой. Если угол между сторонами a и b прямой, третья сторона c² = a² + b². Если угол меньше 90°, стороны «сжимаются» и c меньше; если больше 90°, c больше. Поправка — ровно 2ab·cos угла.</p>
+      <p class="key">c² = a² + b² − 2ab · cos C &nbsp;·&nbsp; cos C = (a² + b² − c²) / (2ab)</p>
+      <p>Двигай ползунок угла: при 90° поправка ноль, при остром угле она отнимает, при тупом — прибавляет (минус на минус). Вторая формула — та же теорема, вывернутая наизнанку: по трём сторонам находим угол.</p>
+      <p>Когда применять: две стороны и угол между ними → третья сторона. Три стороны → любой угол.</p>` },
+    set: [
+      { q: "Стороны <b>5</b> и <b>8</b>, угол между ними <b>60°</b>. Третья сторона?", a: 7, h: "cos 60° = 0,5.", s: "c² = 25 + 64 − 2·5·8·0,5 = 89 − 40 = 49 → c = 7." },
+      { q: "Стороны <b>3</b> и <b>5</b>, угол между ними <b>120°</b>. Третья сторона?", a: 7, h: "cos 120° = −0,5, минус на минус даёт плюс.", s: "c² = 9 + 25 − 2·3·5·(−0,5) = 34 + 15 = 49 → c = 7." },
+      { q: "Стороны треугольника <b>7</b>, <b>8</b>, <b>13</b>. Найди угол напротив стороны 13 (в градусах).", a: 120, h: "cos = (49 + 64 − 169) / (2·7·8).", s: "cos = −56/112 = −0,5 → 120°." },
+      { q: "Стороны <b>2</b>, <b>3</b>, <b>4</b>. Найди косинус угла напротив стороны 4. Ответ дробью или десятичной.", a: -0.25, h: "cos = (4 + 9 − 16) / (2·2·3).", s: "cos = −3/12 = −1/4 = −0,25. Угол тупой — так и должно быть, он напротив самой большой стороны." },
+      { q: "Стороны <b>6</b> и <b>10</b>, угол между ними <b>60°</b>. Третья сторона? Ответ до сотых.", a: 8.72, h: "c² = 36 + 100 − 60.", s: "c² = 136 − 60 = 76 → c = √76 = 2√19 ≈ 8,72.\nНе всякий ответ — целое число. √76 — нормальный ответ." },
+    ],
+    heavy: { q: "Стороны параллелограмма <b>5</b> и <b>8</b>, угол между ними <b>60°</b>. Найди большую диагональ. Ответ до сотых.", a: 11.36, h: "Диагонали параллелограмма — третьи стороны двух треугольников: с углом 60° и с углом 120°. Большая диагональ лежит напротив тупого угла.", s: "Меньшая диагональ (напротив 60°): d² = 25 + 64 − 40 = 49 → 7.\nБольшая (напротив 120°): D² = 25 + 64 + 40 = 129 → D = √129 ≈ 11,36.\nПроверка: d² + D² = 49 + 129 = 178 = 2(25 + 64). Сумма квадратов диагоналей равна сумме квадратов всех четырёх сторон — это свойство параллелограмма, на нём ловят в ОГЭ." },
+  },
+  { n: 10, week: 2, title: "Какой это треугольник?", topic: "cos",
+    warm: [
+      { q: "Стороны <b>4</b> и <b>6</b>, угол между ними <b>60°</b>. Третья сторона до сотых?", a: 5.29 },
+      { q: "Стороны <b>5</b>, <b>5</b>, <b>5</b>. Косинус любого угла?", a: 0.5 },
+      { q: "sin 120° до сотых = ?", a: 0.87 },
+    ],
+    lesson: { fig: "classify", html: `
+      <p>По трём сторонам можно сказать, какой треугольник, даже не считая углы. Смотрим на самую большую сторону c и сравниваем c² с a² + b². Это теорема косинусов без косинуса: знак поправки говорит всё.</p>
+      <p class="key">c² &lt; a² + b² → остроугольный &nbsp;·&nbsp; c² = a² + b² → прямоугольный &nbsp;·&nbsp; c² &gt; a² + b² → тупоугольный</p>
+      <p>Двигай стороны. Самый большой угол всегда напротив самой большой стороны, поэтому проверять нужно только его: если он острый, остальные тем более.</p>
+      <p>И второй приём дня: после того как нашла угол по трём сторонам, площадь считается через ½·a·b·sin — синус берёшь из косинуса через тождество.</p>` },
+    set: [
+      { q: "Стороны <b>5</b>, <b>6</b>, <b>7</b>. Какой треугольник?", choices: ["Остроугольный", "Прямоугольный", "Тупоугольный"], a: 0, h: "49 против 25 + 36.", s: "49 < 61 → остроугольный." },
+      { q: "Стороны <b>6</b>, <b>8</b>, <b>10</b>. Какой треугольник?", choices: ["Остроугольный", "Прямоугольный", "Тупоугольный"], a: 1, h: "Тройка 3-4-5 × 2.", s: "100 = 36 + 64 → прямоугольный." },
+      { q: "Стороны <b>4</b>, <b>5</b>, <b>8</b>. Какой треугольник?", choices: ["Остроугольный", "Прямоугольный", "Тупоугольный"], a: 2, h: "64 против 16 + 25.", s: "64 > 41 → тупоугольный." },
+      { q: "Стороны <b>4</b>, <b>6</b> и <b>2√7</b>. Найди угол между сторонами 4 и 6 (в градусах).", a: 60, h: "(2√7)² = 28. cos = (16 + 36 − 28) / (2·4·6).", s: "cos = 24/48 = 0,5 → 60°." },
+      { q: "Тот же треугольник: стороны <b>4</b>, <b>6</b>, угол между ними 60°. Найди площадь. Ответ до сотых.", a: 10.39, h: "S = ½ · 4 · 6 · sin 60°.", s: "S = 12 · √3/2 = 6√3 ≈ 10,39." },
+    ],
+    heavy: { q: "Стороны треугольника <b>10</b>, <b>10</b> и <b>10√3</b>. Найди площадь. Ответ до сотых.", a: 43.3, h: "Сначала угол между сторонами 10 и 10 по теореме косинусов, потом площадь через синус.", s: "cos = (100 + 100 − 300) / (2·10·10) = −100/200 = −0,5 → угол 120°.\nS = ½ · 10 · 10 · sin 120° = 50 · √3/2 = 25√3 ≈ 43,30.\nМожно и иначе: это равнобедренный треугольник, высота к основанию 5, S = ½ · 10√3 · 5. Два пути, один ответ — так и проверяют себя." },
+  },
+  { n: 11, week: 2, title: "Всё вместе: формат ОГЭ", topic: "sine",
+    warm: [
+      { q: "Стороны <b>3</b>, <b>4</b>, <b>6</b>. Какой треугольник? Напиши 1 — остроугольный, 2 — прямоугольный, 3 — тупоугольный.", a: 3 },
+      { q: "Угол A = <b>150°</b>, BC = <b>5</b>. Радиус описанной окружности?", a: 5 },
+      { q: "Стороны <b>1</b> и <b>1</b>, угол между ними <b>90°</b>. Третья сторона до сотых?", a: 1.41 },
+    ],
+    lesson: { fig: "cheat", html: `
+      <p>Сегодня без новой теории. Задачи вперемешку, как на экзамене: в каждой надо сначала понять, какая из двух теорем нужна, и только потом считать.</p>
+      <p class="key">Есть угол и сторона напротив него, или описанная окружность → теорема синусов. Есть две стороны и угол между ними, или все три стороны → теорема косинусов.</p>
+      <p>Шпаргалка ниже — всё, что нужно за две недели. Прочитай один раз перед подходом.</p>` },
+    set: [
+      { q: "В треугольнике ABC стороны AB = BC, угол B = <b>120°</b>, AC = <b>6√3</b>. Найди AB.", a: 6, h: "Обозначь AB = BC = x и запиши теорему косинусов для AC.", s: "AC² = x² + x² − 2x²·cos 120° = 2x² + x² = 3x².\n108 = 3x² → x² = 36 → x = 6." },
+      { q: "Радиус описанной окружности R = <b>4</b>, угол A = <b>30°</b>. Найди BC.", a: 4, h: "BC = 2R sin A.", s: "BC = 8 · 0,5 = 4." },
+      { q: "Стороны <b>5</b>, <b>5</b>, <b>6</b>. Найди косинус угла при вершине (между сторонами 5 и 5).", a: 0.28, h: "cos = (25 + 25 − 36) / (2·5·5).", s: "cos = 14/50 = 0,28." },
+      { q: "AB = <b>8</b>, AC = <b>5</b>, угол A = <b>60°</b>. Найди BC.", a: 7, h: "Две стороны и угол между ними.", s: "BC² = 64 + 25 − 2·8·5·0,5 = 89 − 40 = 49 → 7." },
+      { q: "sin A = <b>0,8</b>, сторона BC = <b>12</b>. Найди радиус описанной окружности.", a: 7.5, h: "BC / sin A = 2R.", s: "2R = 12 / 0,8 = 15 → R = 7,5." },
+    ],
+    heavy: { q: "AB = <b>2</b>, BC = <b>3</b>, угол B = <b>60°</b>. Найди sin A. Ответ до сотых.", a: 0.98, h: "Сначала AC по теореме косинусов, потом теорема синусов: AC / sin B = BC / sin A.", s: "AC² = 4 + 9 − 2·2·3·0,5 = 13 − 6 = 7 → AC = √7.\nAC / sin B = BC / sin A → sin A = BC · sin B / AC = 3 · (√3/2) / √7 = 3√3 / (2√7) = 3√21 / 14 ≈ 0,98.\nДве теоремы в одной задаче — это и есть уровень учебника." },
+  },
+  { n: 12, week: 2, boss: true, title: "Босс недели 2", topic: "cos",
+    warm: [],
+    lesson: { fig: null, html: `
+      <p>Задача уровня Волчкевича. В тетради: чертёж, обозначения, каждый шаг. Фото — папе, ответ — сюда.</p>
+      <p class="key">Понадобятся обе теоремы и тупой угол. Всё из этой недели.</p>` },
+    set: [],
+    heavy: { q: "В треугольнике ABC стороны AB = <b>7</b>, BC = <b>8</b>, угол B = <b>120°</b>.<br>1) Найди AC.<br>2) Найди площадь треугольника.<br>3) Найди радиус описанной окружности.<br><br>Введи радиус. Ответ до сотых.", a: 7.51, h: "AC по теореме косинусов (cos 120° = −0,5). Площадь через ½·AB·BC·sin B. Радиус через AC / sin B = 2R.", s: "1) AC² = 49 + 64 − 2·7·8·(−0,5) = 113 + 56 = 169 → AC = 13.\n2) S = ½ · 7 · 8 · sin 120° = 28 · √3/2 = 14√3 ≈ 24,25.\n3) 2R = AC / sin B = 13 / (√3/2) = 26/√3 → R = 13/√3 = 13√3/3 ≈ 7,51.\nТройка 7-8-13 с углом 120° — такая же классика, как 13-14-15." },
+  },
 ];
+DAYS.forEach(d => { if (!d.week) d.week = 1; });
 
 /* ---------- state ---------- */
 const KEY = "geo9-gym-v1";
@@ -280,14 +395,15 @@ function home() {
     return `<div class="rank"><div class="name">${TOPICS[k]}</div><div class="tier t${t}">${TIERS[t][0]} · ${v}</div><div class="bar"><div style="width:${pct}%"></div></div></div>`;
   }).join("");
   let firstOpen = DAYS.findIndex(d => !(S.days[d.n] && S.days[d.n].done));
-  const week = DAYS.map((d, i) => {
+  const dayBtn = (d, i) => {
     const done = S.days[d.n] && S.days[d.n].done, locked = i > firstOpen && firstOpen !== -1;
     return `<button type="button" class="day ${done ? "done" : ""} ${i === firstOpen ? "cur" : ""} ${locked ? "locked" : ""} ${d.boss ? "boss" : ""}" data-day="${d.n}" ${locked ? "disabled" : ""}>
       <span class="n">${d.boss ? "БОСС" : "ДЕНЬ " + d.n}</span><span class="t">${d.title}</span>${done ? `<span class="small">+${S.days[d.n].trophies} кубков</span>` : `<span class="small">${d.boss ? "1 задача" : "~20 минут"}</span>`}</button>`;
-  }).join("");
+  };
+  const week = Object.keys(WEEKS).map(w => `<div class="stack" style="gap:8px"><p class="eyebrow">${WEEKS[w]}</p><div class="week">${DAYS.map((d, i) => d.week == w ? dayBtn(d, i) : "").join("")}</div></div>`).join("");
   const titles = CHESTS.filter(c => S.chests.includes(c.at)).map(c => `<span class="badge got">${c.title}</span>`).join("") || `<span class="small">Пока пусто. Первый сундук на 60 кубках.</span>`;
   const skinsAvail = CHESTS.filter(c => c.skin && S.chests.includes(c.at)).map(c => c.skin);
-  const skins = [["", "#ff5a1f"], ["mint", "#11a683"], ["violet", "#7b3fe4"], ["pink", "#e5327a"]].map(([k, col]) =>
+  const skins = [["", "#ff5a1f"], ["mint", "#11a683"], ["violet", "#7b3fe4"], ["pink", "#e5327a"], ["sky", "#0f8fd6"], ["gold", "#c98a00"]].map(([k, col]) =>
     `<button type="button" class="skin ${(S.skin || "") === k ? "on" : ""}" data-skin="${k}" style="background:${col}" ${k && !skinsAvail.includes(k) ? "disabled" : ""} aria-label="тема ${k || 'стандарт'}"></button>`).join("");
 
   app.innerHTML = `
@@ -304,7 +420,7 @@ function home() {
     </div>
     <div class="card stack">
       <div class="row between"><h2>Тренировки</h2><span class="small">${doneCount} из ${DAYS.length}</span></div>
-      <div class="week">${week}</div>
+      ${week}
       <p class="small">Каждая тренировка: разминка на скорость, тема с живым чертёжом, подход из 5 задач и один рабочий вес. Серия держится, если тренироваться каждый день; один пропуск в неделю прощается.</p>
     </div>
     <div class="card stack">
@@ -575,6 +691,123 @@ FIG.special = box => {
   }
   box.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { A = +b.dataset.a; box.querySelectorAll("[data-a]").forEach(x => x.classList.toggle("primary", x === b)); upd(); });
   rh.oninput = upd; upd();
+};
+
+FIG.semi = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 240" id="s"></svg><div class="vals" id="v"></div><p class="small">Тяни точку по полуокружности. Пунктиром — зеркальный угол 180° − α.</p>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v"); const O = { x: 200, y: 200 }, R = 160; let ang = 140;
+  el("path", { d: `M${O.x + R} ${O.y} A${R} ${R} 0 0 0 ${O.x - R} ${O.y}`, fill: "none", stroke: "var(--line)", "stroke-width": 2 }, svg);
+  el("line", { x1: O.x - R - 15, y1: O.y, x2: O.x + R + 15, y2: O.y, stroke: "currentColor", "stroke-width": 1.5 }, svg);
+  el("line", { x1: O.x, y1: O.y + 8, x2: O.x, y2: O.y - R - 15, stroke: "currentColor", "stroke-width": 1.5 }, svg);
+  const t0 = el("text", { x: O.x + R + 2, y: O.y + 18, "font-size": 12, fill: "currentColor" }, svg); t0.textContent = "0°";
+  const t180 = el("text", { x: O.x - R - 20, y: O.y + 18, "font-size": 12, fill: "currentColor" }, svg); t180.textContent = "180°";
+  const t90 = el("text", { x: O.x + 6, y: O.y - R - 4, "font-size": 12, fill: "currentColor" }, svg); t90.textContent = "90°";
+  const mir = el("line", { stroke: "var(--muted)", "stroke-width": 2, "stroke-dasharray": "5 5" }, svg);
+  const mirP = el("circle", { r: 6, fill: "var(--muted)" }, svg);
+  const adj = el("line", { stroke: "#2b6fe6", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const opp = el("line", { stroke: "#e23b3b", "stroke-width": 5, "stroke-linecap": "round" }, svg);
+  const hyp = el("line", { stroke: "#1d9a5f", "stroke-width": 4 }, svg);
+  const arc = el("path", { fill: "none", stroke: "var(--accent)", "stroke-width": 2 }, svg);
+  const angT = el("text", { x: O.x + 30, y: O.y - 12, "font-size": 14, "font-weight": 700, fill: "var(--accent)" }, svg);
+  const P = el("circle", { r: 11, fill: "var(--accent)", stroke: "#fff", "stroke-width": 3, cursor: "grab" }, svg);
+  function upd() {
+    const a = ang * Math.PI / 180, x = O.x + R * Math.cos(a), y = O.y - R * Math.sin(a), s = Math.sin(a), c = Math.cos(a);
+    const mx = O.x - R * Math.cos(a);
+    mir.setAttribute("x1", O.x); mir.setAttribute("y1", O.y); mir.setAttribute("x2", mx); mir.setAttribute("y2", y); mirP.setAttribute("cx", mx); mirP.setAttribute("cy", y);
+    adj.setAttribute("x1", O.x); adj.setAttribute("y1", O.y); adj.setAttribute("x2", x); adj.setAttribute("y2", O.y);
+    opp.setAttribute("x1", x); opp.setAttribute("y1", O.y); opp.setAttribute("x2", x); opp.setAttribute("y2", y);
+    hyp.setAttribute("x1", O.x); hyp.setAttribute("y1", O.y); hyp.setAttribute("x2", x); hyp.setAttribute("y2", y);
+    const r = 34; arc.setAttribute("d", `M${O.x + r} ${O.y} A${r} ${r} 0 ${ang > 180 ? 1 : 0} 0 ${O.x + r * Math.cos(a)} ${O.y - r * Math.sin(a)}`);
+    angT.textContent = Math.round(ang) + "°"; angT.setAttribute("x", O.x + 44 * Math.cos(a / 2) - 10); angT.setAttribute("y", O.y - 44 * Math.sin(a / 2) + 4);
+    P.setAttribute("cx", x); P.setAttribute("cy", y);
+    v.innerHTML = `<div class="val c-opp">sin ${Math.round(ang)}° (высота)<b>${r2(s)}</b></div><div class="val c-adj">cos ${Math.round(ang)}° (сдвиг)<b>${c < 0 ? "−" : ""}${r2(Math.abs(c))}</b></div><div class="val">зеркальный угол<b>${180 - Math.round(ang)}°: sin ${r2(s)}, cos ${r2(-c) < 0 ? "−" : ""}${r2(Math.abs(c))}</b></div><div class="val">sin² + cos²<b>${r2(s * s + c * c)}</b></div>`;
+  }
+  drag(svg, p => { ang = Math.max(2, Math.min(178, Math.atan2(O.y - p.y, p.x - O.x) * 180 / Math.PI)); upd(); }); upd();
+};
+
+FIG.sinlaw = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 300" id="s"></svg><div class="vals" id="v"></div><p class="small">Тяни вершину C. Три отношения всегда равны, и равны диаметру описанной окружности.</p>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v");
+  const A = { x: 90, y: 230 }, B = { x: 310, y: 230 }; let C = { x: 230, y: 70 };
+  const circ = el("circle", { fill: "none", stroke: "var(--line)", "stroke-width": 2, "stroke-dasharray": "6 4" }, svg);
+  const tri = el("polygon", { fill: "var(--accent-soft)", stroke: "currentColor", "stroke-width": 3, "stroke-linejoin": "round" }, svg);
+  const lab = {}; ["A", "B", "C"].forEach(k => { lab[k] = el("text", { "font-size": 16, "font-weight": 700, fill: "currentColor", "text-anchor": "middle" }, svg); lab[k].textContent = k; });
+  const sl = {}; [["a", "#e23b3b"], ["b", "#2b6fe6"], ["c", "#1d9a5f"]].forEach(([k, col]) => { sl[k] = el("text", { "font-size": 13, "font-weight": 700, fill: col, "text-anchor": "middle" }, svg); });
+  const P = el("circle", { r: 11, fill: "var(--accent)", stroke: "#fff", "stroke-width": 3, cursor: "grab" }, svg);
+  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y);
+  function upd() {
+    tri.setAttribute("points", `${A.x},${A.y} ${B.x},${B.y} ${C.x},${C.y}`);
+    const a = dist(B, C) / 30, b = dist(A, C) / 30, c = dist(A, B) / 30;
+    const angA = Math.acos((b * b + c * c - a * a) / (2 * b * c)), angB = Math.acos((a * a + c * c - b * b) / (2 * a * c)), angC = Math.PI - angA - angB;
+    const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+    const ux = ((A.x ** 2 + A.y ** 2) * (B.y - C.y) + (B.x ** 2 + B.y ** 2) * (C.y - A.y) + (C.x ** 2 + C.y ** 2) * (A.y - B.y)) / d;
+    const uy = ((A.x ** 2 + A.y ** 2) * (C.x - B.x) + (B.x ** 2 + B.y ** 2) * (A.x - C.x) + (C.x ** 2 + C.y ** 2) * (B.x - A.x)) / d;
+    circ.setAttribute("cx", ux); circ.setAttribute("cy", uy); circ.setAttribute("r", dist({ x: ux, y: uy }, A));
+    lab.A.setAttribute("x", A.x - 12); lab.A.setAttribute("y", A.y + 18); lab.B.setAttribute("x", B.x + 12); lab.B.setAttribute("y", B.y + 18); lab.C.setAttribute("x", C.x); lab.C.setAttribute("y", C.y - 14);
+    sl.a.setAttribute("x", (B.x + C.x) / 2 + 14); sl.a.setAttribute("y", (B.y + C.y) / 2); sl.a.textContent = "a = " + r2(a);
+    sl.b.setAttribute("x", (A.x + C.x) / 2 - 14); sl.b.setAttribute("y", (A.y + C.y) / 2); sl.b.textContent = "b = " + r2(b);
+    sl.c.setAttribute("x", (A.x + B.x) / 2); sl.c.setAttribute("y", A.y + 36); sl.c.textContent = "c = " + r2(c);
+    P.setAttribute("cx", C.x); P.setAttribute("cy", C.y);
+    const dg = r => Math.round(r * 180 / Math.PI), R2 = dist({ x: ux, y: uy }, A) / 30 * 2;
+    v.innerHTML = `<div class="val"><span class="c-opp">a</span> / sin A = ${r2(a)} / sin ${dg(angA)}°<b>${r2(a / Math.sin(angA))}</b></div><div class="val"><span class="c-adj">b</span> / sin B = ${r2(b)} / sin ${dg(angB)}°<b>${r2(b / Math.sin(angB))}</b></div><div class="val"><span class="c-hyp">c</span> / sin C = ${r2(c)} / sin ${dg(angC)}°<b>${r2(c / Math.sin(angC))}</b></div><div class="val">2R (диаметр окружности)<b>${r2(R2)}</b></div>`;
+  }
+  drag(svg, p => { C = { x: Math.max(20, Math.min(380, p.x)), y: Math.max(20, Math.min(200, p.y)) }; upd(); }); upd();
+};
+
+FIG.coslaw = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 260" id="s"></svg><label>угол C = <b id="lg"></b><input type="range" id="rg" min="20" max="160" value="60"></label><div class="vals" id="v"></div>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v"), rg = box.querySelector("#rg"); const a = 5, b = 8, k = 28;
+  const g = el("g", {}, svg);
+  function upd() {
+    const G = +rg.value, gr = G * Math.PI / 180, c = Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(gr)); g.innerHTML = "";
+    const Cx = 70, Cy = 200, Bx = Cx + b * k, By = Cy, Ax = Cx + a * k * Math.cos(gr), Ay = Cy - a * k * Math.sin(gr);
+    el("polygon", { points: `${Cx},${Cy} ${Bx},${By} ${Ax},${Ay}`, fill: "var(--accent-soft)", stroke: "currentColor", "stroke-width": 3, "stroke-linejoin": "round" }, g);
+    el("line", { x1: Cx, y1: Cy, x2: Bx, y2: By, stroke: "#2b6fe6", "stroke-width": 5 }, g);
+    el("line", { x1: Cx, y1: Cy, x2: Ax, y2: Ay, stroke: "#e23b3b", "stroke-width": 5 }, g);
+    el("line", { x1: Ax, y1: Ay, x2: Bx, y2: By, stroke: "#1d9a5f", "stroke-width": 5 }, g);
+    const r = 30; el("path", { d: `M${Cx + r} ${Cy} A${r} ${r} 0 ${G > 180 ? 1 : 0} 0 ${Cx + r * Math.cos(gr)} ${Cy - r * Math.sin(gr)}`, fill: "none", stroke: "var(--accent)", "stroke-width": 2 }, g);
+    const t = (x, y, s, col, anc) => { const e = el("text", { x, y, "font-size": 14, "font-weight": 700, fill: col, "text-anchor": anc || "middle" }, g); e.textContent = s; };
+    t(Cx + 44, Cy - 10, G + "°", "var(--accent)", "start"); t((Cx + Bx) / 2, Cy + 22, "b = 8", "#2b6fe6"); t((Cx + Ax) / 2 - 16, (Cy + Ay) / 2, "a = 5", "#e23b3b", "end"); t((Ax + Bx) / 2 + 14, (Ay + By) / 2 - 6, "c = " + r2(c), "#1d9a5f", "start");
+    const corr = -2 * a * b * Math.cos(gr);
+    box.querySelector("#lg").textContent = G + "°";
+    v.innerHTML = `<div class="val">a² + b²<b>25 + 64 = 89</b></div><div class="val">поправка −2ab·cos C<b>${corr > 0 ? "+" : ""}${r2(corr)}</b></div><div class="val c-hyp">c² = 89 ${corr >= 0 ? "+" : "−"} ${r2(Math.abs(corr))}<b>${r2(c * c)} → c = ${r2(c)}</b></div><div class="val">${G < 90 ? "угол острый: c меньше, чем у Пифагора" : G === 90 ? "прямой угол: чистый Пифагор" : "угол тупой: c больше, чем у Пифагора"}<b>${G < 90 ? "c² < a² + b²" : G === 90 ? "c² = a² + b²" : "c² > a² + b²"}</b></div>`;
+  }
+  rg.oninput = upd; upd();
+};
+
+FIG.classify = box => {
+  box.innerHTML = `<svg viewBox="0 0 400 230" id="s"></svg><div class="row">${["a", "b", "c"].map(k => `<label style="flex:1">${k} = <b id="l${k}"></b><input type="range" id="r${k}" min="2" max="12" value="${{ a: 5, b: 6, c: 7 }[k]}"></label>`).join("")}</div><div class="vals" id="v"></div>`;
+  const svg = box.querySelector("#s"), v = box.querySelector("#v"), g = el("g", {}, svg);
+  const R = ["a", "b", "c"].map(k => box.querySelector("#r" + k));
+  function upd() {
+    let [a, b, c] = R.map(r => +r.value); ["a", "b", "c"].forEach((k, i) => box.querySelector("#l" + k).textContent = [a, b, c][i]); g.innerHTML = "";
+    const s = [a, b, c].sort((x, y) => x - y), big = s[2], p = s[0], q = s[1];
+    if (big >= p + q) { v.innerHTML = `<div class="val">треугольника нет<b>${big} ≥ ${p} + ${q}</b></div><div class="val small">самая большая сторона должна быть меньше суммы двух других</div>`; return; }
+    const kk = 300 / big, Ax = 50, Ay = 190, Bx = Ax + big * kk, By = Ay, cosA = (q * q + big * big - p * p) / (2 * q * big), Cx = Ax + q * kk * cosA, Cy = Ay - q * kk * Math.sqrt(1 - cosA * cosA);
+    el("polygon", { points: `${Ax},${Ay} ${Bx},${By} ${Cx},${Cy}`, fill: "var(--accent-soft)", stroke: "currentColor", "stroke-width": 3, "stroke-linejoin": "round" }, g);
+    const t = (x, y, str, col, anc) => { const e = el("text", { x, y, "font-size": 14, "font-weight": 700, fill: col || "currentColor", "text-anchor": anc || "middle" }, g); e.textContent = str; };
+    t((Ax + Bx) / 2, Ay + 22, "самая большая: " + big, "#1d9a5f"); t((Ax + Cx) / 2 - 12, (Ay + Cy) / 2, q, "currentColor", "end"); t((Bx + Cx) / 2 + 12, (By + Cy) / 2, p, "currentColor", "start");
+    const cosBig = (p * p + q * q - big * big) / (2 * p * q), ang = Math.round(Math.acos(cosBig) * 180 / Math.PI);
+    t(Cx, Cy - 12, ang + "°", "var(--accent)");
+    const kind = big * big < p * p + q * q ? "остроугольный" : big * big === p * p + q * q ? "прямоугольный" : "тупоугольный";
+    v.innerHTML = `<div class="val">c² против a² + b²<b>${big * big} ${big * big < p * p + q * q ? "<" : big * big === p * p + q * q ? "=" : ">"} ${p * p} + ${q * q} = ${p * p + q * q}</b></div><div class="val">самый большой угол<b>${ang}°</b></div><div class="val c-hyp">вывод<b>${kind}</b></div>`;
+  }
+  R.forEach(r => r.oninput = upd); upd();
+};
+
+FIG.cheat = box => {
+  box.innerHTML = `<table>
+    <tr><th>Что дано</th><th>Что искать</th><th>Чем</th></tr>
+    <tr><td>два угла + сторона</td><td>другую сторону</td><td>теорема синусов</td></tr>
+    <tr><td>сторона + угол напротив</td><td>радиус R</td><td>a / sin A = 2R</td></tr>
+    <tr><td>две стороны + угол между</td><td>третью сторону</td><td>теорема косинусов</td></tr>
+    <tr><td>три стороны</td><td>угол</td><td>cos = (a² + b² − c²) / 2ab</td></tr>
+    <tr><td>две стороны + угол между</td><td>площадь</td><td>½ · a · b · sin</td></tr>
+    <tr><td>три стороны</td><td>какой треугольник</td><td>c² против a² + b²</td></tr>
+  </table>
+  <table style="margin-top:10px"><tr><th></th><th>30°</th><th>45°</th><th>60°</th><th>120°</th><th>135°</th><th>150°</th></tr>
+    <tr><td>sin</td><td>1/2</td><td>√2/2</td><td>√3/2</td><td>√3/2</td><td>√2/2</td><td>1/2</td></tr>
+    <tr><td>cos</td><td>√3/2</td><td>√2/2</td><td>1/2</td><td>−1/2</td><td>−√2/2</td><td>−√3/2</td></tr></table>`;
 };
 
 /* ---------- confetti ---------- */
